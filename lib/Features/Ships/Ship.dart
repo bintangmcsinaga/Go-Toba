@@ -17,6 +17,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
   String? _selectedOrigin;
   String? _selectedDestination;
   List<ShipTicket> _filteredShipTickets = [];
+  bool _isLoading = false;
 
   final List<String> _origins = [
     'Pelabuhan Ajibata',
@@ -26,6 +27,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
     'Pelabuhan Bakti Raja',
     'Pelabuhan Tongging',
   ];
+  
   final List<String> _destinations = [
     'Pelabuhan Ajibata',
     'Pelabuhan Simanindo',
@@ -38,26 +40,44 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
   Future<List<ShipTicket>> fetchShipTickets() async {
     try {
       var snapshot = await FirebaseFirestore.instance.collection('ship').get();
-      print('Fetched \${snapshot.docs.length} tickets');
       return snapshot.docs
           .map((doc) => ShipTicket.fromFirestore(doc.data(), doc.id))
           .toList();
     } catch (e) {
-      print('Error fetching tickets: \$e');
+      print('Error fetching tickets: $e');
       return [];
     }
   }
 
   void _filterShipTickets() async {
     if (_selectedOrigin != null && _selectedDestination != null) {
-      var allTickets = await fetchShipTickets();
       setState(() {
-        _filteredShipTickets = allTickets
-            .where((t) =>
-                t.from.toLowerCase() == _selectedOrigin!.toLowerCase() &&
-                t.to.toLowerCase() == _selectedDestination!.toLowerCase())
-            .toList();
+        _isLoading = true;
       });
+      
+      var allTickets = await fetchShipTickets();
+      
+      if (mounted) {
+        setState(() {
+          _filteredShipTickets = allTickets
+              .where((t) =>
+                  t.from.toLowerCase() == _selectedOrigin!.toLowerCase() &&
+                  t.to.toLowerCase() == _selectedDestination!.toLowerCase())
+              .toList();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _swapPorts() {
+    if (_selectedOrigin != null && _selectedDestination != null) {
+      setState(() {
+        final temp = _selectedOrigin;
+        _selectedOrigin = _selectedDestination;
+        _selectedDestination = temp;
+      });
+      _filterShipTickets();
     }
   }
 
@@ -74,16 +94,15 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceAlt.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.divider),
-        boxShadow: AppShadows.soft,
+        border: Border.all(color: AppColors.divider, width: 1),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.primary, size: 20),
-          const SizedBox(width: 10),
+          Icon(icon, color: AppColors.primary, size: 22),
+          const SizedBox(width: 12),
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -91,14 +110,16 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                 hint: Text(label, style: AppTextStyles.bodyMedium),
                 isDense: true,
                 isExpanded: true,
-                style: AppTextStyles.bodyLarge
-                    .copyWith(color: AppColors.textPrimary),
+                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: AppColors.textPrimary, 
+                  fontWeight: value != null ? FontWeight.bold : FontWeight.normal
+                ),
                 dropdownColor: AppColors.surface,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 onChanged: onChanged,
                 items: items
-                    .map((item) =>
-                        DropdownMenuItem(value: item, child: Text(item)))
+                    .map((item) => DropdownMenuItem(value: item, child: Text(item)))
                     .toList(),
               ),
             ),
@@ -108,140 +129,182 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
     );
   }
 
+  Widget _buildSkeletonLoader() {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 3,
+      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        return Container(
+          height: 180,
+          decoration: BoxDecoration(
+            color: AppColors.shimmer1,
+            borderRadius: BorderRadius.circular(20),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           // ── Premium AppBar ─────────────────────────────────────
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
               title: Text('Tiket Kapal',
-                  style:
-                      AppTextStyles.headingSmall.copyWith(color: Colors.white)),
+                  style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
               centerTitle: true,
+              titlePadding: const EdgeInsets.only(bottom: 16),
               background: Container(
-                decoration:
-                    const BoxDecoration(gradient: AppGradients.primaryVertical),
+                decoration: const BoxDecoration(gradient: AppGradients.primaryVertical),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: -30,
+                      top: -20,
+                      child: Icon(Icons.sailing_rounded, 
+                          size: 120, 
+                          color: Colors.white.withValues(alpha: 0.1)),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ── Route card ────────────────────────────────
+                  // ── Route Card ────────────────────────────────
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: AppShadows.card,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Pilih Rute Kapal',
-                            style: AppTextStyles.headingSmall),
-                        const SizedBox(height: 4),
-                        Text('Pilih pelabuhan keberangkatan & tujuan',
+                        Text('Pilih Rute Pelayaran', style: AppTextStyles.headingMedium),
+                        const SizedBox(height: 6),
+                        Text('Temukan jadwal kapal ferry Danau Toba terbaik untuk perjalanan Anda.',
                             style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 16),
-                        _buildDropdown(
-                          label: 'Pelabuhan asal',
-                          icon: Icons.directions_boat_rounded,
-                          value: _selectedOrigin,
-                          items: _origins,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedOrigin = value;
-                              _selectedDestination = null;
-                              _filterShipTickets();
-                            });
-                          },
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Center(
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.arrow_downward_rounded,
-                                  color: AppColors.primary, size: 18),
+                        const SizedBox(height: 24),
+                        
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Column(
+                              children: [
+                                _buildDropdown(
+                                  label: 'Pelabuhan Keberangkatan',
+                                  icon: Icons.location_on_rounded,
+                                  value: _selectedOrigin,
+                                  items: _origins,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedOrigin = value;
+                                      if (_selectedDestination == value) _selectedDestination = null;
+                                    });
+                                    _filterShipTickets();
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                _buildDropdown(
+                                  label: 'Pelabuhan Tujuan',
+                                  icon: Icons.flag_rounded,
+                                  value: _selectedDestination,
+                                  items: _getAvailableDestinations(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedDestination = value;
+                                    });
+                                    _filterShipTickets();
+                                  },
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                        _buildDropdown(
-                          label: 'Pelabuhan tujuan',
-                          icon: Icons.anchor_rounded,
-                          value: _selectedDestination,
-                          items: _getAvailableDestinations(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedDestination = value;
-                              _filterShipTickets();
-                            });
-                          },
+                            
+                            // Swap Button
+                            Positioned(
+                              right: 24,
+                              child: GestureDetector(
+                                onTap: _swapPorts,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: AppColors.divider, width: 2),
+                                    boxShadow: AppShadows.soft,
+                                  ),
+                                  child: const Icon(Icons.swap_vert_rounded, color: AppColors.primary),
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
-                  // ── Results ───────────────────────────────────
+                  // ── Results Section ───────────────────────────────────
                   if (_selectedOrigin != null && _selectedDestination != null)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Text('Kapal Tersedia',
-                                style: AppTextStyles.headingSmall),
+                            Text('Jadwal Tersedia', style: AppTextStyles.headingSmall),
                             const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                  color:
-                                      AppColors.primary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(100)),
-                              child: Text(
-                                '${_filteredShipTickets.length} results',
-                                style: AppTextStyles.label
-                                    .copyWith(color: AppColors.primary),
+                            if (!_isLoading)
+                              AppChip(
+                                label: '${_filteredShipTickets.length} Rute', 
+                                accent: false,
                               ),
-                            ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        if (_filteredShipTickets.isEmpty)
+                        const SizedBox(height: 16),
+                        
+                        if (_isLoading)
+                          _buildSkeletonLoader()
+                        else if (_filteredShipTickets.isEmpty)
                           Container(
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                             decoration: BoxDecoration(
                               color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            child: Column(
                               children: [
-                                const Icon(Icons.search_off_rounded,
-                                    color: AppColors.textSecondary),
-                                const SizedBox(width: 8),
-                                Text('Tidak ada jadwal tersedia',
-                                    style: AppTextStyles.bodyMedium),
+                                Icon(Icons.search_off_rounded, size: 64, color: AppColors.textSecondary.withValues(alpha: 0.5)),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Oops! Rute Tidak Ditemukan', 
+                                  style: AppTextStyles.headingSmall,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Maaf, tidak ada jadwal kapal untuk rute dari $_selectedOrigin menuju $_selectedDestination saat ini.', 
+                                  style: AppTextStyles.bodyMedium,
+                                  textAlign: TextAlign.center,
+                                ),
                               ],
                             ),
                           )
@@ -250,17 +313,27 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: _filteredShipTickets.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
+                            separatorBuilder: (_, __) => const SizedBox(height: 16),
                             itemBuilder: (context, index) {
-                              return _ShipTicketCard(
-                                  ticket: _filteredShipTickets[index]);
+                              return TweenAnimationBuilder<double>(
+                                duration: Duration(milliseconds: 400 + (index * 100)),
+                                tween: Tween<double>(begin: 0, end: 1),
+                                curve: Curves.easeOutCubic,
+                                builder: (context, value, child) {
+                                  return Opacity(
+                                    opacity: value,
+                                    child: Transform.translate(
+                                      offset: Offset(0, 20 * (1 - value)),
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                child: _ShipTicketCard(ticket: _filteredShipTickets[index]),
+                              );
                             },
                           ),
                       ],
                     ),
-
-                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -271,7 +344,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
   }
 }
 
-// ── Ship Ticket Card ────────────────────────────────────────────────────────
+// ── Realistic Ship Ticket Card ──────────────────────────────────────────────
 class _ShipTicketCard extends StatelessWidget {
   final ShipTicket ticket;
   const _ShipTicketCard({required this.ticket});
@@ -286,95 +359,189 @@ class _ShipTicketCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header band
+          // Header band with tear-off effect
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: const BoxDecoration(
-              gradient: AppGradients.primaryVertical,
+              color: AppColors.primary,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Row(
               children: [
-                Icon(Icons.directions_boat_rounded,
-                    color: Colors.white, size: 18),
-                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.sailing_rounded, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 16),
                 Expanded(
-                  child: Text(
-                    '${ticket.from} → ${ticket.to}',
-                    style: AppTextStyles.headingSmall
-                        .copyWith(color: Colors.white, fontSize: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Ferry Reguler', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text('Tiket Penumpang', style: AppTextStyles.headingSmall.copyWith(color: Colors.white)),
+                    ],
                   ),
                 ),
                 if (ticket.price > 0)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.accent,
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: Text(
-                      'Rp ${ticket.price}',
-                      style: AppTextStyles.label
-                          .copyWith(color: Colors.white, fontSize: 11),
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('Harga', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text(
+                        'Rp ${ticket.price}',
+                        style: AppTextStyles.headingMedium.copyWith(color: AppColors.accentLight),
+                      ),
+                    ],
                   ),
               ],
             ),
           ),
 
+          // Dashed Divider (Efek sobekan karcis)
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final boxWidth = constraints.constrainWidth();
+                  const dashWidth = 8.0;
+                  final dashCount = (boxWidth / (2 * dashWidth)).floor();
+                  return Flex(
+                    direction: Axis.horizontal,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(dashCount, (_) {
+                      return SizedBox(
+                        width: dashWidth,
+                        height: 1.5,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: AppColors.divider.withValues(alpha: 0.5)),
+                        ),
+                      );
+                    }),
+                  );
+                },
+              ),
+              // Left Cutout
+              Positioned(
+                left: -10,
+                child: Container(
+                  height: 20,
+                  width: 20,
+                  decoration: const BoxDecoration(color: AppColors.background, shape: BoxShape.circle),
+                ),
+              ),
+              // Right Cutout
+              Positioned(
+                right: -10,
+                child: Container(
+                  height: 20,
+                  width: 20,
+                  decoration: const BoxDecoration(color: AppColors.background, shape: BoxShape.circle),
+                ),
+              ),
+            ],
+          ),
+
           // Body
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Dari', style: AppTextStyles.caption),
-                        Text(ticket.from, style: AppTextStyles.headingSmall),
-                      ],
-                    ),
-                    const Expanded(
-                      child: Center(
-                        child: Icon(Icons.arrow_forward_rounded,
-                            color: AppColors.primary),
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('DARI', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          const SizedBox(height: 4),
+                          // Mencegah overflow dengan membatasi baris
+                          Text(
+                            ticket.from, 
+                            style: AppTextStyles.headingSmall,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text('Ke', style: AppTextStyles.caption),
-                        Text(ticket.to, style: AppTextStyles.headingSmall),
-                      ],
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Icon(Icons.arrow_forward_rounded, color: AppColors.primaryLight, size: 28),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('TUJUAN', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          const SizedBox(height: 4),
+                          // Mencegah overflow
+                          Text(
+                            ticket.to, 
+                            style: AppTextStyles.headingSmall,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.right,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                const Divider(color: AppColors.divider, height: 1),
-                const SizedBox(height: 12),
-                if (ticket.departTime.isNotEmpty)
-                  Row(
-                    children: [
-                      const Icon(Icons.schedule_rounded,
-                          size: 16, color: AppColors.primary),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          'Jam: ${ticket.departTime.join(', ')}',
-                          style: AppTextStyles.bodyMedium,
+                
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(color: AppColors.divider, height: 1),
+                ),
+                
+                if (ticket.departTime.isNotEmpty) ...[
+                  Text('Jadwal Keberangkatan', style: AppTextStyles.label),
+                  const SizedBox(height: 10),
+                  // Mencegah overflow dari text waktu yang panjang menggunakan Wrap
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: ticket.departTime.map((time) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                         ),
-                      ),
-                    ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.schedule_rounded, size: 14, color: AppColors.textSecondary),
+                            const SizedBox(width: 4),
+                            Text(time, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
-                const SizedBox(height: 14),
+                ],
+                
+                const SizedBox(height: 24),
+                
                 SizedBox(
                   width: double.infinity,
                   child: AppPrimaryButton(
                     label: 'Pesan Tiket',
-                    icon: Icons.confirmation_number_rounded,
+                    icon: Icons.confirmation_number_outlined,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
