@@ -36,15 +36,99 @@ class _ProfileState extends State<Profile>
     super.dispose();
   }
 
-  void _logout() async {
+  // Fungsi untuk mengeksekusi logout yang sebenarnya
+  void _executeLogout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('uid');
+    
+    if (!mounted) return;
     context.read<NavBarProv>().logout();
     await prefs.setBool("login", false);
+    
     if (!mounted) return;
-    Navigator.pushReplacement(
+    // Menggunakan pushAndRemoveUntil agar tidak bisa back ke halaman profile
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const Login()),
+      (route) => false, 
+    );
+  }
+
+  // Fungsi untuk menampilkan pop-up konfirmasi
+  void _confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: AppColors.surface,
+          title: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.logout_rounded, color: AppColors.error, size: 32),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Keluar Akun',
+                style: AppTextStyles.headingMedium,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          content: Text(
+            'Apakah Anda yakin ingin keluar dari akun ini?',
+            style: AppTextStyles.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(), // Tutup pop-up
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: Text(
+                      'Batal',
+                      style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Tutup pop-up dulu
+                      _executeLogout(); // Baru eksekusi logout
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Keluar',
+                      style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -54,6 +138,7 @@ class _ProfileState extends State<Profile>
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             expandedHeight: 220,
@@ -224,7 +309,7 @@ class _ProfileState extends State<Profile>
                       color: AppColors.error,
                       label: 'Keluar',
                       textColor: AppColors.error,
-                      onTap: _logout,
+                      onTap: _confirmLogout, // Memanggil pop-up konfirmasi
                     ),
                   ]),
                   const SizedBox(height: 24),
