@@ -18,6 +18,7 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
   String? _selectedOrigin;
   String? _selectedDestination;
   List<BusTicket> _filteredBusTickets = [];
+  bool _isLoading = false;
 
   final List<String> _origins = [
     'Medan',
@@ -49,14 +50,33 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
 
   void _filterBusTickets() async {
     if (_selectedOrigin != null && _selectedDestination != null) {
-      var allTickets = await fetchBusTickets();
       setState(() {
-        _filteredBusTickets = allTickets
-            .where((t) =>
-                t.from.toLowerCase() == _selectedOrigin!.toLowerCase() &&
-                t.to.toLowerCase() == _selectedDestination!.toLowerCase())
-            .toList();
+        _isLoading = true;
       });
+
+      var allTickets = await fetchBusTickets();
+      
+      if (mounted) {
+        setState(() {
+          _filteredBusTickets = allTickets
+              .where((t) =>
+                  t.from.toLowerCase() == _selectedOrigin!.toLowerCase() &&
+                  t.to.toLowerCase() == _selectedDestination!.toLowerCase())
+              .toList();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _swapLocations() {
+    if (_selectedOrigin != null && _selectedDestination != null) {
+      setState(() {
+        final temp = _selectedOrigin;
+        _selectedOrigin = _selectedDestination;
+        _selectedDestination = temp;
+      });
+      _filterBusTickets();
     }
   }
 
@@ -66,7 +86,6 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
         .toList();
   }
 
-  // ── Helper: styled dropdown ────────────────────────────────────────────────
   Widget _buildDropdown({
     required String label,
     required IconData icon,
@@ -76,16 +95,15 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceAlt.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.divider),
-        boxShadow: AppShadows.soft,
+        border: Border.all(color: AppColors.divider, width: 1),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.primary, size: 20),
-          const SizedBox(width: 10),
+          Icon(icon, color: AppColors.primary, size: 22),
+          const SizedBox(width: 12),
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -93,22 +111,40 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                 hint: Text(label, style: AppTextStyles.bodyMedium),
                 isDense: true,
                 isExpanded: true,
-                style: AppTextStyles.bodyLarge
-                    .copyWith(color: AppColors.textPrimary),
+                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: value != null ? FontWeight.bold : FontWeight.normal
+                ),
                 dropdownColor: AppColors.surface,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 onChanged: onChanged,
                 items: items
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(item),
-                        ))
+                    .map((item) => DropdownMenuItem(value: item, child: Text(item)))
                     .toList(),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSkeletonLoader() {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 3,
+      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        return Container(
+          height: 180,
+          decoration: BoxDecoration(
+            color: AppColors.shimmer1,
+            borderRadius: BorderRadius.circular(20),
+          ),
+        );
+      },
     );
   }
 
@@ -120,98 +156,116 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           // ── Premium AppBar ────────────────────────────────────────────
           SliverAppBar(
-            expandedHeight: 100,
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text('Tiket Bus',
-                  style:
-                      AppTextStyles.headingSmall.copyWith(color: Colors.white)),
+              title: Text('Tiket Bus & Travel',
+                  style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
               centerTitle: true,
+              titlePadding: const EdgeInsets.only(bottom: 16),
               background: Container(
-                decoration:
-                    const BoxDecoration(gradient: AppGradients.primaryVertical),
+                decoration: const BoxDecoration(gradient: AppGradients.primaryVertical),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: -30,
+                      top: -20,
+                      child: Icon(Icons.directions_bus_rounded, 
+                          size: 120, 
+                          color: Colors.white.withValues(alpha: 0.1)),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // ── Route card ──────────────────────────────────────
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: AppShadows.card,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Pilih Rute', style: AppTextStyles.headingSmall),
-                        const SizedBox(height: 4),
-                        Text('Tentukan keberangkatan & tujuan',
+                        Text('Pilih Rute Perjalanan', style: AppTextStyles.headingMedium),
+                        const SizedBox(height: 6),
+                        Text('Cari jadwal bus atau travel untuk perjalanan Anda',
                             style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
 
-                        // Origin
-                        _buildDropdown(
-                          label: 'Asal keberangkatan',
-                          icon: Icons.departure_board_rounded,
-                          value: _selectedOrigin,
-                          items: _origins,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedOrigin = value;
-                              _selectedDestination = null;
-                              _filterBusTickets();
-                            });
-                          },
-                        ),
-
-                        // Arrow
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Center(
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.arrow_downward_rounded,
-                                  color: AppColors.primary, size: 18),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Column(
+                              children: [
+                                _buildDropdown(
+                                  label: 'Kota Keberangkatan',
+                                  icon: Icons.departure_board_rounded,
+                                  value: _selectedOrigin,
+                                  items: _origins,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedOrigin = value;
+                                      if (_selectedDestination == value) _selectedDestination = null;
+                                    });
+                                    _filterBusTickets();
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                _buildDropdown(
+                                  label: 'Kota Tujuan',
+                                  icon: Icons.location_on_rounded,
+                                  value: _selectedDestination,
+                                  items: _getAvailableDestinations(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedDestination = value;
+                                    });
+                                    _filterBusTickets();
+                                  },
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
 
-                        // Destination
-                        _buildDropdown(
-                          label: 'Tujuan',
-                          icon: Icons.location_on_rounded,
-                          value: _selectedDestination,
-                          items: _getAvailableDestinations(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedDestination = value;
-                              _filterBusTickets();
-                            });
-                          },
+                            // Swap Button
+                            Positioned(
+                              right: 24,
+                              child: GestureDetector(
+                                onTap: _swapLocations,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: AppColors.divider, width: 2),
+                                    boxShadow: AppShadows.soft,
+                                  ),
+                                  child: const Icon(Icons.swap_vert_rounded, color: AppColors.primary),
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
                   // ── Results ──────────────────────────────────────────
                   if (_selectedOrigin != null && _selectedDestination != null)
@@ -220,39 +274,41 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                       children: [
                         Row(
                           children: [
-                            Text('Tersedia', style: AppTextStyles.headingSmall),
+                            Text('Jadwal Tersedia', style: AppTextStyles.headingSmall),
                             const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                  color:
-                                      AppColors.primary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(100)),
-                              child: Text(
-                                '${_filteredBusTickets.length} results',
-                                style: AppTextStyles.label
-                                    .copyWith(color: AppColors.primary),
+                            if (!_isLoading)
+                              AppChip(
+                                label: '${_filteredBusTickets.length} Travel', 
+                                accent: false,
                               ),
-                            ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        if (_filteredBusTickets.isEmpty)
+                        const SizedBox(height: 16),
+                        
+                        if (_isLoading)
+                          _buildSkeletonLoader()
+                        else if (_filteredBusTickets.isEmpty)
                           Container(
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                             decoration: BoxDecoration(
                               color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            child: Column(
                               children: [
-                                const Icon(Icons.search_off_rounded,
-                                    color: AppColors.textSecondary),
-                                const SizedBox(width: 8),
-                                Text('Tidak ada jadwal tersedia',
-                                    style: AppTextStyles.bodyMedium),
+                                Icon(Icons.directions_bus_filled_outlined, size: 64, color: AppColors.textSecondary.withValues(alpha: 0.5)),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Rute Tidak Ditemukan', 
+                                  style: AppTextStyles.headingSmall,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Maaf, belum ada jadwal bus dari $_selectedOrigin menuju $_selectedDestination.', 
+                                  style: AppTextStyles.bodyMedium,
+                                  textAlign: TextAlign.center,
+                                ),
                               ],
                             ),
                           )
@@ -261,20 +317,30 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: _filteredBusTickets.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
+                            separatorBuilder: (_, __) => const SizedBox(height: 16),
                             itemBuilder: (context, index) {
-                              final ticket = _filteredBusTickets[index];
-                              return _BusTicketCard(
-                                ticket: ticket,
-                                formatter: currencyFormatter,
+                              return TweenAnimationBuilder<double>(
+                                duration: Duration(milliseconds: 400 + (index * 100)),
+                                tween: Tween<double>(begin: 0, end: 1),
+                                curve: Curves.easeOutCubic,
+                                builder: (context, value, child) {
+                                  return Opacity(
+                                    opacity: value,
+                                    child: Transform.translate(
+                                      offset: Offset(0, 20 * (1 - value)),
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                child: _BusTicketCard(
+                                  ticket: _filteredBusTickets[index],
+                                  formatter: currencyFormatter,
+                                ),
                               );
                             },
                           ),
                       ],
                     ),
-
-                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -285,7 +351,7 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
   }
 }
 
-// ── Ticket Card ────────────────────────────────────────────────────────────
+// ── Realistic Ticket Card ───────────────────────────────────────────────────
 class _BusTicketCard extends StatelessWidget {
   final BusTicket ticket;
   final NumberFormat formatter;
@@ -302,99 +368,172 @@ class _BusTicketCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header band
+          // Header band with dark gradient
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: const BoxDecoration(
-              gradient: AppGradients.primary,
+              color: AppColors.primary,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.directions_bus_rounded,
-                    color: Colors.white, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    ticket.transportName,
-                    style: AppTextStyles.headingSmall
-                        .copyWith(color: Colors.white, fontSize: 14),
-                  ),
-                ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.accent,
-                    borderRadius: BorderRadius.circular(100),
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Text(
-                    formatter.format(ticket.price),
-                    style: AppTextStyles.label
-                        .copyWith(color: Colors.white, fontSize: 11),
+                  child: const Icon(Icons.directions_bus_rounded, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Operator Bus/Travel', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text(ticket.transportName, style: AppTextStyles.headingSmall.copyWith(color: Colors.white)),
+                    ],
                   ),
                 ),
+                if (ticket.price > 0)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('Harga', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text(
+                        formatter.format(ticket.price).replaceAll(',00', ''), // Buang desimal jika ada
+                        style: AppTextStyles.headingMedium.copyWith(color: AppColors.accentLight),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
 
+          // Dashed Divider (Efek Sobekan Tiket)
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final boxWidth = constraints.constrainWidth();
+                  const dashWidth = 8.0;
+                  final dashCount = (boxWidth / (2 * dashWidth)).floor();
+                  return Flex(
+                    direction: Axis.horizontal,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(dashCount, (_) {
+                      return SizedBox(
+                        width: dashWidth,
+                        height: 1.5,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: AppColors.divider.withValues(alpha: 0.5)),
+                        ),
+                      );
+                    }),
+                  );
+                },
+              ),
+              Positioned(
+                left: -10,
+                child: Container(
+                  height: 20, width: 20,
+                  decoration: const BoxDecoration(color: AppColors.background, shape: BoxShape.circle),
+                ),
+              ),
+              Positioned(
+                right: -10,
+                child: Container(
+                  height: 20, width: 20,
+                  decoration: const BoxDecoration(color: AppColors.background, shape: BoxShape.circle),
+                ),
+              ),
+            ],
+          ),
+
           // Body
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Route row
-                Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Dari', style: AppTextStyles.caption),
-                        Text(ticket.from, style: AppTextStyles.headingSmall),
-                      ],
-                    ),
-                    const Expanded(
-                      child: Center(
-                        child: Icon(Icons.arrow_forward_rounded,
-                            color: AppColors.primary),
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text('Ke', style: AppTextStyles.caption),
-                        Text(ticket.to, style: AppTextStyles.headingSmall),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const Divider(color: AppColors.divider, height: 1),
-                const SizedBox(height: 12),
-
-                // Departure times
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.schedule_rounded,
-                        size: 16, color: AppColors.primary),
-                    const SizedBox(width: 6),
                     Expanded(
-                      child: Text(
-                        'Jam: ${ticket.departTime.join(', ')}',
-                        style: AppTextStyles.bodyMedium,
+                      flex: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('DARI', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          const SizedBox(height: 4),
+                          Text(ticket.from, style: AppTextStyles.headingSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Icon(Icons.arrow_forward_rounded, color: AppColors.primaryLight, size: 28),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('TUJUAN', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          const SizedBox(height: 4),
+                          Text(ticket.to, style: AppTextStyles.headingSmall, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(color: AppColors.divider, height: 1),
+                ),
 
-                // Book button
+                if (ticket.departTime.isNotEmpty) ...[
+                  Text('Jadwal Keberangkatan', style: AppTextStyles.label),
+                  const SizedBox(height: 10),
+                  // Menggunakan Wrap untuk mencegah overflow jika jam keberangkatan banyak
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: ticket.departTime.map((time) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.schedule_rounded, size: 14, color: AppColors.textSecondary),
+                            const SizedBox(width: 4),
+                            Text(time, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+                
+                const SizedBox(height: 24),
+                
                 SizedBox(
                   width: double.infinity,
                   child: AppPrimaryButton(
                     label: 'Pesan Tiket',
-                    icon: Icons.confirmation_number_rounded,
+                    icon: Icons.confirmation_number_outlined,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(

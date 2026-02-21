@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +17,25 @@ class Profile extends StatefulWidget {
   State<Profile> createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfileState extends State<Profile>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _cloudController;
+
+  @override
+  void initState() {
+    super.initState();
+    _cloudController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 22),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _cloudController.dispose();
+    super.dispose();
+  }
+
   void _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('uid');
@@ -36,7 +55,6 @@ class _ProfileState extends State<Profile> {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // ── Gradient header ──────────────────────────────────────────
           SliverAppBar(
             expandedHeight: 220,
             pinned: true,
@@ -47,67 +65,78 @@ class _ProfileState extends State<Profile> {
                 decoration: const BoxDecoration(
                   gradient: AppGradients.primaryVertical,
                 ),
-                child: SafeArea(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Avatar with gradient ring
-                      Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            colors: [AppColors.accent, AppColors.primaryLight],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: AnimatedBuilder(
+                        animation: _cloudController,
+                        builder: (context, _) => _MovingCloudLayer(
+                          progress: _cloudController.value,
+                        ),
+                      ),
+                    ),
+                    SafeArea(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: const LinearGradient(
+                                colors: [AppColors.accent, AppColors.primaryLight],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primaryDark.withValues(alpha: 0.5),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                )
+                              ],
+                            ),
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundColor: AppColors.surfaceAlt,
+                              backgroundImage: (user.profilephoto != null &&
+                                      user.profilephoto!.isNotEmpty)
+                                  ? NetworkImage(user.profilephoto!)
+                                  : null,
+                              child: (user.profilephoto == null ||
+                                      user.profilephoto!.isEmpty)
+                                  ? const Icon(Icons.person,
+                                      size: 46, color: AppColors.primary)
+                                  : null,
+                            ),
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                                  AppColors.primaryDark.withValues(alpha: 0.5),
-                              blurRadius: 16,
-                              offset: const Offset(0, 6),
-                            )
+                          const SizedBox(height: 12),
+                          Text(
+                            user.username.isEmpty ? 'Pengguna' : user.username,
+                            style: AppTextStyles.headingMedium.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            user.email,
+                            style: AppTextStyles.bodySmall
+                                .copyWith(color: Colors.white70),
+                          ),
+                          if (user.phone.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              user.phone,
+                              style: AppTextStyles.bodySmall
+                                  .copyWith(color: Colors.white60),
+                            ),
                           ],
-                        ),
-                        child: CircleAvatar(
-                          radius: 46,
-                          backgroundColor: AppColors.surfaceAlt,
-                          backgroundImage: (user.profilephoto != null &&
-                                  user.profilephoto!.isNotEmpty)
-                              ? NetworkImage(user.profilephoto!)
-                              : null,
-                          child: (user.profilephoto == null ||
-                                  user.profilephoto!.isEmpty)
-                              ? const Icon(Icons.person,
-                                  size: 46, color: AppColors.primary)
-                              : null,
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        user.username.isEmpty ? 'Pengguna' : user.username,
-                        style: AppTextStyles.headingMedium.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        user.email,
-                        style: AppTextStyles.bodySmall
-                            .copyWith(color: Colors.white70),
-                      ),
-                      if (user.phone.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          user.phone,
-                          style: AppTextStyles.bodySmall
-                              .copyWith(color: Colors.white60),
-                        ),
-                      ],
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -215,6 +244,74 @@ class _ProfileState extends State<Profile> {
 }
 
 // ── Helper Widgets ─────────────────────────────────────────────────────────
+
+class _MovingCloudLayer extends StatelessWidget {
+  final double progress;
+  const _MovingCloudLayer({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          return Stack(
+            children: [
+              _buildCloud(
+                width: width,
+                top: 34,
+                size: 76,
+                speed: 1.0,
+                startFraction: 0.08,
+                opacity: 0.24,
+              ),
+              _buildCloud(
+                width: width,
+                top: 72,
+                size: 58,
+                speed: 0.7,
+                startFraction: 0.52,
+                opacity: 0.18,
+              ),
+              _buildCloud(
+                width: width,
+                top: 110,
+                size: 88,
+                speed: 1.15,
+                startFraction: 0.78,
+                opacity: 0.20,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCloud({
+    required double width,
+    required double top,
+    required double size,
+    required double speed,
+    required double startFraction,
+    required double opacity,
+  }) {
+    final travel = width + (size * 2);
+    final current = ((progress * speed) + startFraction) % 1.0;
+    final dx = (current * travel) - size;
+    final bob = math.sin((progress + startFraction) * 2 * math.pi) * 2.0;
+
+    return Positioned(
+      top: top + bob,
+      left: dx,
+      child: Icon(
+        Icons.cloud_rounded,
+        size: size,
+        color: Colors.white.withValues(alpha: opacity),
+      ),
+    );
+  }
+}
 
 class _SectionLabel extends StatelessWidget {
   final String label;

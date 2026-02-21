@@ -397,7 +397,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
               allowHalfRating: false,
               itemCount: 5,
               itemSize: 40,
-              unratedColor: AppColors.divider,
+              unratedColor: const Color.fromARGB(255, 161, 161, 161),
               itemBuilder: (context, _) => const Icon(Icons.star_rounded, color: AppColors.accent),
               onRatingUpdate: (ratingValue) {
                 rating = ratingValue;
