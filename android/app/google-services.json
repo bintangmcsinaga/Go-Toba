@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "590401060025",
+    "project_id": "go-toba",
+    "storage_bucket": "go-toba.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590401060025:android:892124c9531b3fcba96f68",
+        "android_client_info": {
+          "package_name": "com.example.go_toba"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNohOazMXY502P9s5kO5UmuQ5OvXgldmE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

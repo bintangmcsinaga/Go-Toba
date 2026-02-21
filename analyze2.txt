@@ -1,0 +1,27 @@
+﻿Analyzing sistem-rekomendasi-pariwisata-danau-toba...           
+
+warning - The include file 'package:flutter_lints/flutter.yaml' in 'D:\New Github\sistem-rekomendasi-pariwisata-danau-toba\analysis_options.yaml' can't be found when analyzing 'D:\New Github\sistem-rekomendasi-pariwisata-danau-toba' - analysis_options.yaml:10:10 - include_file_not_found
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\Components\BottomNavBar.dart:22:33 - deprecated_member_use
+warning - Unused import: 'package:go_toba/Features/Hotels/addHotelData.dart' - lib\Features\Hotels\Hotel.dart:8:8 - unused_import
+warning - Unused import: 'package:url_launcher/url_launcher.dart' - lib\Features\Moments\StoryList.dart:8:8 - unused_import
+   info - 'Share' is deprecated and shouldn't be used. Use SharePlus instead - lib\Features\Moments\StoryList.dart:80:13 - deprecated_member_use
+   info - 'shareXFiles' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead - lib\Features\Moments\StoryList.dart:80:19 - deprecated_member_use
+  error - Arguments of a constant creation must be constant expressions - lib\Features\Ships\Ship.dart:298:28 - const_with_non_constant_argument
+  error - The getter 'directions_ferry_boat_rounded' isn't defined for the type 'Icons' - lib\Features\Ships\Ship.dart:298:34 - undefined_getter
+  error - The getter 'transportName' isn't defined for the type 'ShipTicket' - lib\Features\Ships\Ship.dart:303:28 - undefined_getter
+warning - The value of the field '_animation' isn't used - lib\Home\HomePage.dart:44:26 - unused_field
+warning - The declaration '_loginWithFacebook' isn't referenced - lib\Login&Register\login.dart:152:16 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\Utils\DatabaseSeeder.dart:832:45 - deprecated_member_use
+warning - The value of the local variable 'color' isn't used - lib\Utils\DatabaseSeeder.dart:863:11 - unused_local_variable
+
+flutter : 13 issues found. (ran in 8.8s)
+At line:1 char:1
++ flutter analyze --no-fatal-infos 2>&1 | 
+ForEach-Object { $_ } | Out-F ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecifie 
+   d: (13 issues found. (ran in 8.8s):St  
+  ring) [], RemoteException
+    + FullyQualifiedErrorId : NativeComma 
+   ndError
+ 
