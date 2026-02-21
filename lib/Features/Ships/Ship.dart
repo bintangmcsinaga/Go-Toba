@@ -154,7 +154,6 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // ── Premium AppBar ─────────────────────────────────────
           SliverAppBar(
             pinned: true,
             backgroundColor: AppColors.primaryDark,
@@ -279,7 +278,6 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                               ),
                           ],
                         ),
-                        const SizedBox(height: 16),
                         
                         if (_isLoading)
                           _buildSkeletonLoader()

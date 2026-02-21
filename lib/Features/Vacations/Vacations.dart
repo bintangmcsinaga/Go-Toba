@@ -20,6 +20,16 @@ class _VacationsState extends State<Vacations> {
   String filterCategory = 'All';
   String filterTag = 'All';
 
+  // Daftar filter agar lebih mudah dikelola dan ditambahkan
+  final List<Map<String, String>> _filters = [
+    {'name': 'Semua', 'tag': 'All'},
+    {'name': 'Danau', 'tag': 'pemandangandanau'},
+    {'name': 'Air Terjun', 'tag': 'airterjun'},
+    {'name': 'Bukit', 'tag': 'bukit'},
+    {'name': 'Budaya', 'tag': 'budaya'},
+    {'name': 'Pantai', 'tag': 'pantai'},
+  ];
+
   Future<void> updateUserTags(String userId, List<String> newTags) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     DocumentReference userDoc = db.collection('users').doc(userId);
@@ -49,100 +59,113 @@ class _VacationsState extends State<Vacations> {
             : uniqueNewTags;
         await userDoc.set({'vacationtags': initialTags});
       }
-
-      print('Tags updated successfully.');
     } catch (e) {
-      print('Error updating tags: $e');
+      debugPrint('Error updating tags: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Row(
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // ── Premium Header ─────────────────────────────────────
+          SliverAppBar(
+            pinned: true,
+            floating: true,
+            backgroundColor: AppColors.primaryDark,
+            iconTheme: const IconThemeData(color: Colors.white),
+            elevation: 0,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text('Destinasi Wisata',
+                  style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
+              centerTitle: true,
+              background: Container(
+                decoration: const BoxDecoration(gradient: AppGradients.primaryVertical),
+              ),
+            ),
+          ),
+
+          // ── Search & Filters ───────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
+                  // Search Bar
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: AppShadows.soft,
+                    ),
+                    child: TextField(
+                      style: AppTextStyles.bodyLarge,
+                      decoration: InputDecoration(
+                        hintText: 'Cari destinasi wisata...',
+                        hintStyle: AppTextStyles.bodyMedium,
+                        prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          searchQuery = value;
+                        });
                       },
-                      icon: const Icon(Icons.arrow_back)),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.search),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                          hintText: 'Search destination...',
-                          border: InputBorder.none,
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            searchQuery = value;
-                          });
-                        },
-                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Filter Chips (Scrollable)
+                  SizedBox(
+                    height: 40,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: _filters.length,
+                      separatorBuilder: (context, index) => const SizedBox(width: 10),
+                      itemBuilder: (context, index) {
+                        final filter = _filters[index];
+                        final isSelected = filterTag == filter['tag'];
+                        return FilterButton(
+                          text: filter['name']!,
+                          selected: isSelected,
+                          onTap: () {
+                            setState(() {
+                              filterTag = filter['tag']!;
+                            });
+                          },
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  FilterButton(
-                    text: 'All',
-                    selected: filterTag == 'All',
-                    onTap: () {
-                      setState(() {
-                        filterTag = 'All';
-                      });
-                    },
-                  ),
-                  FilterButton(
-                    text: 'Pemandangan Danau',
-                    selected: filterTag == 'pemandangandanau',
-                    onTap: () {
-                      setState(() {
-                        filterTag = 'pemandangandanau';
-                      });
-                    },
-                  ),
-                  FilterButton(
-                    text: 'Air Terjun',
-                    selected: filterTag == 'airterjun',
-                    onTap: () {
-                      setState(() {
-                        filterTag = 'airterjun';
-                      });
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: DestinationList(
-                  searchQuery: searchQuery,
-                  filterTag: filterTag,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+
+          // ── Destination List ───────────────────────────────────
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0).copyWith(bottom: 40),
+            sliver: SliverToBoxAdapter(
+              child: DestinationList(
+                searchQuery: searchQuery,
+                filterTag: filterTag,
+                onTagUpdate: updateUserTags,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
+// ── WIDGET: Filter Button ───────────────────────────────────────────
 class FilterButton extends StatelessWidget {
   final String text;
   final bool selected;
@@ -159,16 +182,25 @@ class FilterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? color2 : Colors.grey.shade200,
+          color: selected ? AppColors.primary : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.divider,
+            width: 1,
+          ),
+          boxShadow: selected ? AppShadows.soft : [],
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: selected ? Colors.white : Colors.black,
+        child: Center(
+          child: Text(
+            text,
+            style: AppTextStyles.label.copyWith(
+              color: selected ? Colors.white : AppColors.textPrimary,
+              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+            ),
           ),
         ),
       ),
@@ -176,14 +208,17 @@ class FilterButton extends StatelessWidget {
   }
 }
 
+// ── WIDGET: Destination List (StreamBuilder) ────────────────────────
 class DestinationList extends StatelessWidget {
   final String searchQuery;
   final String filterTag;
+  final Function(String, List<String>) onTagUpdate;
 
   const DestinationList({
     super.key,
     required this.searchQuery,
     required this.filterTag,
+    required this.onTagUpdate,
   });
 
   @override
@@ -192,7 +227,20 @@ class DestinationList extends StatelessWidget {
       stream: FirebaseFirestore.instance.collection('destinations').snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          // Skeleton Loading
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 3,
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            itemBuilder: (context, index) => Container(
+              height: 220,
+              decoration: BoxDecoration(
+                color: AppColors.shimmer1,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          );
         }
 
         var destinations = snapshot.data!.docs
@@ -212,10 +260,51 @@ class DestinationList extends StatelessWidget {
               destinations.where((d) => d.tags.contains(filterTag)).toList();
         }
 
-        return ListView.builder(
+        if (destinations.isEmpty) {
+          // Empty State
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 60),
+            child: Column(
+              children: [
+                Icon(Icons.landscape_rounded, size: 80, color: AppColors.divider),
+                const SizedBox(height: 16),
+                Text('Destinasi Tidak Ditemukan', style: AppTextStyles.headingSmall),
+                const SizedBox(height: 8),
+                Text(
+                  'Coba gunakan kata kunci atau\nfilter kategori yang berbeda.',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyMedium,
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: destinations.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 20),
           itemBuilder: (context, index) {
-            return DestinationCard(destination: destinations[index]);
+
+            return TweenAnimationBuilder<double>(
+              duration: Duration(milliseconds: 400 + (index * 100).clamp(0, 600)),
+              tween: Tween<double>(begin: 0, end: 1),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: child,
+                  ),
+                );
+              },
+              child: DestinationCard(
+                destination: destinations[index],
+                onTagUpdate: onTagUpdate,
+              ),
+            );
           },
         );
       },
@@ -223,134 +312,138 @@ class DestinationList extends StatelessWidget {
   }
 }
 
+// ── WIDGET: Destination Card ─────────────────────────────────────────
 class DestinationCard extends StatelessWidget {
   final Destination destination;
+  final Function(String, List<String>) onTagUpdate;
 
-  Future<void> updateUserTags(String userId, List<String> newTags) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    DocumentReference userDoc = db.collection('users').doc(userId);
-
-    try {
-      DocumentSnapshot userSnapshot = await userDoc.get();
-
-      if (userSnapshot.exists) {
-        List<String> existingTags =
-            List<String>.from(userSnapshot.get('vacationtags') ?? []);
-
-        Set<String> updatedTagsSet = {...existingTags, ...newTags};
-        List<String> updatedTags =
-            updatedTagsSet.toList().sublist(0, min(updatedTagsSet.length, 5));
-
-        await userDoc
-            .set({'vacationtags': updatedTags}, SetOptions(merge: true));
-      } else {
-        await userDoc.set({'vacationtags': newTags});
-      }
-
-      print('Tags updated successfully.');
-    } catch (e) {
-      print('Error updating tags: $e');
-    }
-  }
-
-  const DestinationCard({super.key, required this.destination});
+  const DestinationCard({
+    super.key, 
+    required this.destination,
+    required this.onTagUpdate,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        await updateUserTags(
-            context.read<UserProvider>().uid!, destination.tags);
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                DestinationDetailPage(destination: destination),
-          ),
-        );
+        final userId = context.read<UserProvider>().uid;
+        if (userId != null) {
+          await onTagUpdate(userId, destination.tags);
+        }
+        if (context.mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DestinationDetailPage(destination: destination),
+            ),
+          );
+        }
       },
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
+      child: Container(
+        height: 240, // Tinggi konsisten
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: AppShadows.card,
+          color: AppColors.surface,
         ),
-        child: Column(
+        child: Stack(
           children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  child: Image.network(
-                    destination.imageUrl,
-                    width: double.infinity,
-                    height: 250,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        width: double.infinity,
-                        height: 250,
-                        color: Colors.grey.shade200,
-                        child: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: double.infinity,
-                        height: 250,
-                        color: Colors.grey.shade200,
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 50,
-                        ),
-                      );
-                    },
-                  ),
+            // Gambar Background
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.network(
+                destination.imageUrl,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(color: AppColors.shimmer1);
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: AppColors.shimmer2,
+                    child: const Center(child: Icon(Icons.broken_image_rounded, size: 50, color: AppColors.textSecondary)),
+                  );
+                },
+              ),
+            ),
+
+            // Gradient Overlay (Gelap di bawah agar teks terbaca)
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  colors: [Colors.transparent, Colors.black87],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.4, 1.0], // Mulai gelap di pertengahan ke bawah
                 ),
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  right: 10,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(30)),
-                      color: Colors.black.withValues(alpha: 0.4),
-                    ),
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          title: Text(
-                            destination.name,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            // Teks Informasi (Nama, Lokasi, Rating)
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              destination.name,
+                              style: AppTextStyles.headingMedium.copyWith(color: Colors.white, height: 1.2),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on_rounded, color: AppColors.primaryLight, size: 14),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    destination.location, // Asumsi properti location ada sesuai modelmu sebelumnya
+                                    style: AppTextStyles.bodySmall.copyWith(color: Colors.white70),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      
+                      // Rating & Arrow
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          AppRatingBar(rating: destination.rating.toDouble(), size: 16),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16),
                           ),
-                          subtitle: Row(
-                            children: List.generate(5, (index) {
-                              return Icon(
-                                index < destination.rating
-                                    ? Icons.star
-                                    : Icons.star_border,
-                                color: Colors.yellow,
-                              );
-                            }),
-                          ),
-                          trailing: const Icon(
-                            Icons.arrow_forward,
-                            color: Colors.white,
-                          ),
-                        )
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
