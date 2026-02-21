@@ -100,7 +100,7 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
                 Positioned(
-                  bottom: 24,
+                  bottom: 100,
                   left: 0,
                   right: 0,
                   child: Column(

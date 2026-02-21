@@ -36,11 +36,14 @@ class _DatabaseSeederPageState extends State<DatabaseSeederPage>
   bool _isLoading = false;
   double _progress = 0;
   String _status = '';
+  
+  // 1. DITAMBAHKAN: Step untuk Destinasi
   final List<_StepStatus> _steps = [
     _StepStatus('🏨', 'Hotel', 'Menambahkan 5 hotel + kamar'),
     _StepStatus('🍽️', 'Kuliner', 'Menambahkan 8 kuliner khas Toba'),
     _StepStatus('⛵', 'Kapal Ferry', 'Menambahkan 10 rute ferry'),
     _StepStatus('🚌', 'Bus', 'Menambahkan 12 rute bus'),
+    _StepStatus('⛰️', 'Destinasi', 'Menambahkan 6 destinasi wisata'), 
   ];
 
   @override
@@ -90,6 +93,64 @@ class _DatabaseSeederPageState extends State<DatabaseSeederPage>
   // ─────────────────────────────────────────────
   // DATA DUMMY
   // ─────────────────────────────────────────────
+
+  // 2. DITAMBAHKAN: Data Dummy Destinasi berdasarkan model Destination
+  final List<Map<String, dynamic>> _destinations = [
+    {
+      'name': 'Bukit Holbung',
+      'imageUrl': 'https://images.unsplash.com/photo-1627308595229-7830a5c18106?w=800', // Ganti dengan foto Holbung yg relevan jika ada
+      'rating': 5,
+      'tags': ['bukit', 'pemandangandanau', 'camping', 'alam'],
+      'description': 'Dikenal sebagai Bukit Teletubbies versi Danau Toba. Tempat terbaik untuk melihat pemandangan Danau Toba yang luas, berkemah, dan menikmati matahari terbit maupun terbenam.',
+      'location': 'Desa Janji Marhatan, Samosir',
+      'gmaps': 'https://maps.app.goo.gl/xxx',
+    },
+    {
+      'name': 'Air Terjun Sipiso-piso',
+      'imageUrl': 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800',
+      'rating': 5,
+      'tags': ['airterjun', 'alam', 'trekking', 'karo'],
+      'description': 'Salah satu air terjun tertinggi di Indonesia dengan ketinggian 120 meter. Aliran airnya jatuh sangat deras bagaikan pisau tajam yang membelah tebing.',
+      'location': 'Desa Tongging, Kabupaten Karo',
+      'gmaps': 'https://maps.app.goo.gl/xxx',
+    },
+    {
+      'name': 'Desa Wisata Tomok',
+      'imageUrl': 'https://images.unsplash.com/photo-1591088398332-8a7791972843?w=800',
+      'rating': 4,
+      'tags': ['budaya', 'sejarah', 'belanja', 'samosir'],
+      'description': 'Pusat kebudayaan Batak Toba di Samosir. Pengunjung bisa melihat Makam Raja Sidabutar, patung Sigale-gale, Rumah Adat Bolon, dan berburu suvenir khas Batak.',
+      'location': 'Tomok, Simanindo, Samosir',
+      'gmaps': 'https://maps.app.goo.gl/xxx',
+    },
+    {
+      'name': 'Pusuk Buhit',
+      'imageUrl': 'https://images.unsplash.com/photo-1506059612708-99d6128b4cf8?w=800',
+      'rating': 5,
+      'tags': ['gunung', 'budaya', 'mitologi', 'hiking'],
+      'description': 'Gunung sakral yang dipercaya sebagai tempat asal mula Suku Batak diturunkan. Menawarkan pengalaman mendaki dengan pemandangan magis dan udara pegunungan yang segar.',
+      'location': 'Pangururan, Samosir',
+      'gmaps': 'https://maps.app.goo.gl/xxx',
+    },
+    {
+      'name': 'Lembah Bakkara',
+      'imageUrl': 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800',
+      'rating': 4,
+      'tags': ['sejarah', 'lembah', 'airterjun', 'humbahas'],
+      'description': 'Lembah subur tempat kelahiran Pahlawan Nasional Sisingamangaraja XII. Memiliki banyak mata air segar (mual) dan panorama tebing curam yang mengelilinginya.',
+      'location': 'Baktiraja, Humbang Hasundutan',
+      'gmaps': 'https://maps.app.goo.gl/xxx',
+    },
+    {
+      'name': 'Pantai Pasir Putih Parbaba',
+      'imageUrl': 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800',
+      'rating': 4,
+      'tags': ['pantai', 'air', 'keluarga', 'samosir', 'wahana'],
+      'description': 'Pantai di tepian Danau Toba dengan pasir yang berwarna putih bersih. Memiliki ombak yang tenang dan menyediakan berbagai wahana permainan air seperti banana boat.',
+      'location': 'Pangururan, Samosir',
+      'gmaps': 'https://maps.app.goo.gl/xxx',
+    },
+  ];
 
   final List<Map<String, dynamic>> _hotels = [
     {
@@ -573,7 +634,9 @@ class _DatabaseSeederPageState extends State<DatabaseSeederPage>
       _progress = 0;
     });
 
-    final tasks = [_seedHotels, _seedKuliner, _seedShips, _seedBuses];
+    // 3. DITAMBAHKAN: _seedDestinations masuk ke array antrean task
+    final tasks = [_seedHotels, _seedKuliner, _seedShips, _seedBuses, _seedDestinations];
+    
     for (int i = 0; i < tasks.length; i++) {
       setState(() {
         _steps[i].state = _SeedState.loading;
@@ -634,6 +697,14 @@ class _DatabaseSeederPageState extends State<DatabaseSeederPage>
     final ref = FirebaseFirestore.instance.collection('buses');
     for (final b in _buses) {
       await ref.add(b);
+    }
+  }
+
+  // 4. DITAMBAHKAN: Fungsi untuk push Destinations ke firestore 'destinations'
+  Future<void> _seedDestinations() async {
+    final ref = FirebaseFirestore.instance.collection('destinations');
+    for (final d in _destinations) {
+      await ref.add(d);
     }
   }
 
@@ -893,7 +964,7 @@ class _SummaryCard extends StatelessWidget {
             Container(
               width: 48,
               height: 48,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [_deepTeal, _midTeal],
@@ -1057,15 +1128,15 @@ class _GradientButtonState extends State<_GradientButton>
             height: 56,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              gradient: LinearGradient(
-                colors: const [_deepTeal, _midTeal, _skyBlue],
-                stops: const [0.0, 0.5, 1.0],
+              gradient: const LinearGradient(
+                colors: [_deepTeal, _midTeal, _skyBlue],
+                stops: [0.0, 0.5, 1.0],
               ),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
-                  color: const Color.fromRGBO(26, 122, 154, 0.25),
+                  color: Color.fromRGBO(26, 122, 154, 0.25),
                   blurRadius: 14,
-                  offset: const Offset(0, 6),
+                  offset: Offset(0, 6),
                 )
               ],
             ),
@@ -1081,7 +1152,7 @@ class _GradientButtonState extends State<_GradientButton>
                         return LinearGradient(
                           begin: Alignment(_shimmer.value - 0.5, 0),
                           end: Alignment(_shimmer.value + 0.5, 0),
-                          colors: [
+                          colors: const [
                             Colors.transparent,
                             Color.fromRGBO(255, 255, 255, 0.18),
                             Colors.transparent,
