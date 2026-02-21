@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_toba/Features/Moments/FullScreenImageView.dart';
 import 'package:go_toba/Providers/UserProv.dart';
+import 'package:go_toba/style.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -95,7 +95,7 @@ class StoryList extends StatelessWidget {
     return StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection('stories')
-          .orderBy('date', descending: false)
+          .orderBy('date', descending: true)
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData) {
@@ -103,6 +103,20 @@ class StoryList extends StatelessWidget {
         }
 
         var stories = snapshot.data!.docs;
+        if (stories.isEmpty) {
+          return Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: AppDecorations.cardFlat,
+            child: Text(
+              'Belum ada story. Jadi yang pertama share momenmu.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium,
+            ),
+          );
+        }
+
         return ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -128,56 +142,97 @@ class StoryList extends StatelessWidget {
                 String username = userData['username'] ?? 'Unknown';
                 String profilePictureUrl = userData['profilephoto'] ?? '';
 
-                return Card(
-                  margin: const EdgeInsets.fromLTRB(8, 3, 8, 3),
+                return Container(
+                  margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  decoration: AppDecorations.card,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: NetworkImage(profilePictureUrl),
+                            backgroundColor: AppColors.surfaceAlt,
+                            backgroundImage: profilePictureUrl.isNotEmpty
+                                ? NetworkImage(profilePictureUrl)
+                                : null,
                             child: profilePictureUrl.isEmpty
-                                ? const Icon(Icons.person, size: 80)
+                                ? const Icon(Icons.person, size: 20)
                                 : null,
                           ),
-                          title: Text(username),
-                          subtitle: Text(formatTimestamp(story['date'])),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(story['caption']),
-                        ),
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 8.0,
-                            crossAxisSpacing: 8.0,
-                            childAspectRatio: 1.0,
+                          title: Text(username, style: AppTextStyles.headingSmall),
+                          subtitle: Text(
+                            formatTimestamp(story['date']),
+                            style: AppTextStyles.caption,
                           ),
-                          itemCount: imageUrls.length,
-                          itemBuilder: (context, index) {
-                            String url = imageUrls[index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FullScreenImageView(
-                                      imageUrls: imageUrls.cast<String>(),
-                                      initialIndex: index,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Image.network(url, fit: BoxFit.cover),
-                            );
-                          },
+                          contentPadding: EdgeInsets.zero,
+                          horizontalTitleGap: 10,
                         ),
+                        if ((story['caption'] ?? '').toString().isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Text(story['caption'], style: AppTextStyles.bodyLarge),
+                          ),
+                        if (imageUrls.isNotEmpty)
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                              childAspectRatio: 1,
+                            ),
+                            itemCount: imageUrls.length > 6 ? 6 : imageUrls.length,
+                            itemBuilder: (context, imageIndex) {
+                              String url = imageUrls[imageIndex];
+                              final hiddenCount = imageUrls.length - 6;
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FullScreenImageView(
+                                        imageUrls: imageUrls.cast<String>(),
+                                        initialIndex: imageIndex,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      Image.network(
+                                        url,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => Container(
+                                          color: AppColors.surfaceAlt,
+                                          child: const Icon(
+                                            Icons.broken_image_outlined,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ),
+                                      if (imageIndex == 5 && hiddenCount > 0)
+                                        Container(
+                                          color: Colors.black.withValues(alpha: 0.45),
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            '+$hiddenCount',
+                                            style: AppTextStyles.headingMedium.copyWith(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         Row(
                           children: [
                             IconButton(
@@ -185,7 +240,7 @@ class StoryList extends StatelessWidget {
                                 isLiked
                                     ? Icons.favorite
                                     : Icons.favorite_border,
-                                color: isLiked ? Colors.red : null,
+                                color: isLiked ? AppColors.error : AppColors.textSecondary,
                               ),
                               onPressed: () {
                                 print(
@@ -193,10 +248,10 @@ class StoryList extends StatelessWidget {
                                 toggleLike(context, story);
                               },
                             ),
-                            Text('${likes.length} likes'),
+                            Text('${likes.length} likes', style: AppTextStyles.bodyMedium),
                             const SizedBox(width: 16.0),
                             IconButton(
-                              icon: const Icon(Icons.share),
+                              icon: const Icon(Icons.share_outlined),
                               onPressed: () {
                                 shareStory(context, story['caption'],
                                     imageUrls.cast<String>(), username);

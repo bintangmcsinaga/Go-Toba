@@ -18,7 +18,7 @@ class Story extends StatefulWidget {
 }
 
 class _StoryState extends State<Story> {
-  TextEditingController captionController = TextEditingController();
+  final TextEditingController captionController = TextEditingController();
   List<File> images = [];
   bool uploading = false;
 
@@ -108,89 +108,149 @@ class _StoryState extends State<Story> {
   }
 
   @override
+  void dispose() {
+    captionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       backgroundColor: color1,
       appBar: AppBar(
-        backgroundColor: color2,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: Container(decoration: appBarGradient()),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
-          'Share Story',
+          'Moments',
           style: TextStyle(color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 18),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Card(
-              margin: const EdgeInsets.all(10.0),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(userProvider
-                                .profilephoto ??
-                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAd5avdba8EiOZH8lmV3XshrXx7dKRZvhx-A&s'),
+            Container(
+              decoration: AppDecorations.card,
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: AppColors.surfaceAlt,
+                        backgroundImage: (userProvider.profilephoto ?? '').isNotEmpty
+                            ? NetworkImage(userProvider.profilephoto!)
+                            : null,
+                        child: (userProvider.profilephoto ?? '').isEmpty
+                            ? const Icon(Icons.person, color: AppColors.textSecondary)
+                            : null,
                       ),
-                      title: Container(
-                        padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(20)),
-                        ),
+                      const SizedBox(width: 10),
+                      Expanded(
                         child: TextField(
                           controller: captionController,
-                          maxLines: null,
-                          minLines: 1,
-                          decoration: const InputDecoration(
-                            fillColor: Colors.white,
-                            hintText: 'Tell us your vacation...',
-                            border: InputBorder.none,
+                          maxLines: 5,
+                          minLines: 3,
+                          style: AppTextStyles.bodyLarge,
+                          decoration: AppDecorations.inputDecoration(
+                            'Tell us your vacation...',
+                            icon: Icons.edit_note_rounded,
                           ),
                         ),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.add_photo_alternate),
-                            onPressed: () => pickImages(ImageSource.gallery),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.camera_alt),
-                            onPressed: () => pickImages(ImageSource.camera),
-                          ),
-                        ],
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () => pickImages(ImageSource.gallery),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppColors.primary),
+                        ),
+                        icon: const Icon(Icons.collections_outlined, size: 20),
+                        label: const Text('Gallery'),
                       ),
-                    ),
-                    if (images.isNotEmpty)
-                      Wrap(
-                        spacing: 8.0,
-                        runSpacing: 8.0,
-                        children: images
-                            .map((image) =>
-                                Image.file(image, width: 100, height: 100))
-                            .toList(),
+                      const SizedBox(width: 8),
+                      OutlinedButton.icon(
+                        onPressed: () => pickImages(ImageSource.camera),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppColors.primary),
+                        ),
+                        icon: const Icon(Icons.photo_camera_outlined, size: 20),
+                        label: const Text('Camera'),
                       ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: ElevatedButton(
-                        onPressed: () => uploadStory(context),
-                        child: uploading
-                            ? const LinearProgressIndicator()
-                            : const Text('Share Story'),
+                    ],
+                  ),
+                  if (images.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 92,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: images.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 10),
+                        itemBuilder: (context, index) {
+                          return Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(
+                                  images[index],
+                                  width: 92,
+                                  height: 92,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      images.removeAt(index);
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.45),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
-                ),
+                  const SizedBox(height: 14),
+                  AppPrimaryButton(
+                    label: 'Share Story',
+                    isLoading: uploading,
+                    icon: Icons.send_rounded,
+                    onTap: uploading ? null : () => uploadStory(context),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
+            Text('Latest Moments', style: AppTextStyles.headingSmall),
+            const SizedBox(height: 6),
             const StoryList(),
           ],
         ),
