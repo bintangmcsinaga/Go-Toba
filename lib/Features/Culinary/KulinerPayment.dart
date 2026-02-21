@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:go_toba/Features/Culinary/KulinerModel.dart';
 import 'package:go_toba/Features/Culinary/VirtualAccountPage.dart';
 import 'package:go_toba/Providers/UserProv.dart';
-import 'package:go_toba/style.dart';
+import 'package:go_toba/style.dart'; // Import design system
 
 class KulinerPayment extends StatefulWidget {
   final KulinerModel kuliner;
@@ -18,14 +18,13 @@ class KulinerPayment extends StatefulWidget {
 }
 
 class _KulinerPaymentState extends State<KulinerPayment> {
-  final TextEditingController _completeAddressController =
-      TextEditingController();
+  final TextEditingController _completeAddressController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _kecamatanController = TextEditingController();
-  final TextEditingController _detailBangunanController =
-      TextEditingController();
+  final TextEditingController _detailBangunanController = TextEditingController();
   final TextEditingController _noHpController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
+  
   String _selectedPaymentMethod = 'Transfer Bank';
   String _selectedEWallet = 'Gopay';
   String _selectedBankTransfer = 'BCA';
@@ -36,47 +35,76 @@ class _KulinerPaymentState extends State<KulinerPayment> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Enter Address Details'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('Detail Alamat Pengiriman', style: AppTextStyles.headingMedium),
           content: SingleChildScrollView(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
+                const SizedBox(height: 8),
                 TextField(
                   controller: _addressController,
-                  decoration: const InputDecoration(labelText: 'Address'),
+                  style: AppTextStyles.bodyLarge,
+                  decoration: AppDecorations.inputDecoration('Jalan / Patokan Alamat', icon: Icons.map_rounded),
                 ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _kecamatanController,
-                  decoration: const InputDecoration(labelText: 'Kecamatan'),
+                  style: AppTextStyles.bodyLarge,
+                  decoration: AppDecorations.inputDecoration('Kecamatan', icon: Icons.location_city_rounded),
                 ),
+                const SizedBox(height: 12),
                 TextField(
-                    controller: _detailBangunanController,
-                    decoration: const InputDecoration(
-                        labelText:
-                            'Building Details (Unit Number, Building Color)')),
+                  controller: _detailBangunanController,
+                  style: AppTextStyles.bodyLarge,
+                  decoration: AppDecorations.inputDecoration('Detail Gedung (No. Rumah, Warna)', icon: Icons.home_work_rounded),
+                ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _noHpController,
-                  decoration: const InputDecoration(labelText: 'Phone Number'),
+                  keyboardType: TextInputType.phone,
+                  style: AppTextStyles.bodyLarge,
+                  decoration: AppDecorations.inputDecoration('Nomor HP Aktif', icon: Icons.phone_rounded),
                 ),
               ],
             ),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  String completeAddress = '${_addressController.text}, '
-                      '${_kecamatanController.text}, '
-                      '${_detailBangunanController.text}, '
-                      '${_noHpController.text}';
-                  _completeAddressController.text = completeAddress;
-                });
-              },
-              child: const Text('Save'),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Batal', style: AppTextStyles.label),
+                  ),
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () {
+                      if (_addressController.text.isEmpty || _noHpController.text.isEmpty) {
+                         ScaffoldMessenger.of(context).showSnackBar(
+                           const SnackBar(content: Text('Alamat jalan dan nomor HP wajib diisi!'), backgroundColor: AppColors.error)
+                         );
+                         return;
+                      }
+                      
+                      Navigator.pop(context);
+                      setState(() {
+                        _completeAddressController.text = '${_addressController.text}, '
+                            '${_kecamatanController.text}, '
+                            '${_detailBangunanController.text} (HP: ${_noHpController.text})';
+                      });
+                    },
+                    child: Text('Simpan', style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14)),
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -85,90 +113,70 @@ class _KulinerPaymentState extends State<KulinerPayment> {
   }
 
   void _confirmPurchase() {
+    if (_completeAddressController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mohon lengkapi alamat pengiriman terlebih dahulu.'), backgroundColor: AppColors.error),
+      );
+      return;
+    }
+
     int totalPrice = widget.kuliner.price * _quantity;
+    final NumberFormat currencyFormatter = NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Confirm Purchase'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('Konfirmasi Pesanan', style: AppTextStyles.headingMedium),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Kuliner: ${widget.kuliner.name}'),
-              Text('Quantity: $_quantity'),
-              Text('Total Price: Rp $totalPrice'),
-              Text('Payment Method: $_selectedPaymentMethod'),
-              if (_selectedPaymentMethod == 'E-Wallet')
-                Text('E-Wallet: $_selectedEWallet'),
-              Text('Address: ${_completeAddressController.text}'),
-              Text('Notes: ${_notesController.text}'),
+              Text('Pesanan:', style: AppTextStyles.label),
+              Text('${widget.kuliner.name} ($_quantity porsi)', style: AppTextStyles.bodyMedium),
+              const SizedBox(height: 12),
+              
+              Text('Alamat:', style: AppTextStyles.label),
+              Text(_completeAddressController.text, style: AppTextStyles.bodySmall),
+              const SizedBox(height: 12),
+              
+              Text('Catatan:', style: AppTextStyles.label),
+              Text(_notesController.text.isEmpty ? '-' : _notesController.text, style: AppTextStyles.bodySmall),
+              const SizedBox(height: 12),
+              
+              Text('Pembayaran:', style: AppTextStyles.label),
+              Text('$_selectedPaymentMethod (${_selectedPaymentMethod == 'E-Wallet' ? _selectedEWallet : _selectedBankTransfer})', style: AppTextStyles.bodyMedium),
+              
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(color: AppColors.divider),
+              ),
+              
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Total', style: AppTextStyles.headingSmall),
+                  Text(currencyFormatter.format(totalPrice), style: AppTextStyles.headingSmall.copyWith(color: AppColors.primary)),
+                ],
+              ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text('Batal', style: AppTextStyles.label),
             ),
             ElevatedButton(
-              onPressed: () async {
-                String virtualAccountNumber = _generateVirtualAccountNumber();
-                final user = context.read<UserProvider>();
-                DateTime paymentDeadline =
-                    DateTime.now().add(const Duration(hours: 1));
-                String address = _completeAddressController.text;
-                String notes = _notesController.text;
-
-                Map<String, dynamic> purchaseData = {
-                  'kulinerId': widget.kuliner.id,
-                  'kulinerName': widget.kuliner.name,
-                  'quantity': _quantity,
-                  'totalPrice': widget.kuliner.price * _quantity,
-                  'date': Timestamp.now(),
-                  'userid': context.read<UserProvider>().uid
-                };
-
-                await FirebaseFirestore.instance
-                    .collection('kuliner_log')
-                    .add(purchaseData)
-                    .then((purchaseDoc) {})
-                    .catchError((error) {});
-
-                Map<String, dynamic> historyData = {
-                  'historyType': 'kuliner',
-                  'date': DateFormat("dd-MM-yyyy HH:mm")
-                      .format(DateTime.now())
-                      .toString(),
-                  'paymentMethod': _selectedPaymentMethod,
-                  'price': widget.kuliner.price * _quantity,
-                  'username': user.username,
-                  'kulinerID': widget.kuliner.id,
-                  'kulinerName': widget.kuliner.name,
-                  'quantity': _quantity,
-                  'address': address,
-                  'notes': notes,
-                  'pay': false,
-                  'virtualAccountNumber': virtualAccountNumber,
-                  'paymentDeadline': paymentDeadline,
-                };
-                await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(user.uid)
-                    .collection('history')
-                    .add(historyData)
-                    .then((historyDoc) {})
-                    .catchError((error) {});
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VirtualAccountPage(
-                      virtualAccountNumber: virtualAccountNumber,
-                    ),
-                  ),
-                );
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                _processPayment();
               },
-              child: const Text('Confirm'),
+              child: Text('Pesan Sekarang', style: AppTextStyles.button.copyWith(color: Colors.white)),
             ),
           ],
         );
@@ -176,237 +184,367 @@ class _KulinerPaymentState extends State<KulinerPayment> {
     );
   }
 
+  Future<void> _processPayment() async {
+    // Tampilkan Loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.4),
+      builder: (context) => Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20), boxShadow: AppShadows.soft),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(color: AppColors.primary),
+              const SizedBox(height: 16),
+              DefaultTextStyle(style: AppTextStyles.label, child: const Text('Memproses pesanan...')),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    String virtualAccountNumber = _generateVirtualAccountNumber();
+    final user = context.read<UserProvider>();
+    DateTime paymentDeadline = DateTime.now().add(const Duration(hours: 1));
+    String address = _completeAddressController.text;
+    String notes = _notesController.text;
+    int totalPrice = widget.kuliner.price * _quantity;
+
+    try {
+      Map<String, dynamic> purchaseData = {
+        'kulinerId': widget.kuliner.id,
+        'kulinerName': widget.kuliner.name,
+        'quantity': _quantity,
+        'totalPrice': totalPrice,
+        'date': Timestamp.now(),
+        'userid': user.uid
+      };
+      await FirebaseFirestore.instance.collection('kuliner_log').add(purchaseData);
+
+      Map<String, dynamic> historyData = {
+        'historyType': 'kuliner',
+        'date': DateFormat("dd-MM-yyyy HH:mm").format(DateTime.now()),
+        'paymentMethod': _selectedPaymentMethod,
+        'paymentOption': _selectedPaymentMethod == 'E-Wallet' ? _selectedEWallet : _selectedBankTransfer,
+        'price': totalPrice,
+        'username': user.username,
+        'kulinerID': widget.kuliner.id,
+        'kulinerName': widget.kuliner.name,
+        'quantity': _quantity,
+        'address': address,
+        'notes': notes,
+        'pay': false,
+        'virtualAccountNumber': virtualAccountNumber,
+        'paymentDeadline': paymentDeadline,
+      };
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).collection('history').add(historyData);
+
+      if (mounted) Navigator.pop(context); // Tutup loading
+
+      // Tampilkan Sukses Animasi
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            contentPadding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 800),
+                  curve: Curves.elasticOut,
+                  builder: (context, value, child) {
+                    return Transform.scale(
+                      scale: value,
+                      child: const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 84),
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value.clamp(0.0, 1.0),
+                      child: Transform.translate(offset: Offset(0, 20 * (1 - value)), child: child),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Text('Pesanan Berhasil!', style: AppTextStyles.headingMedium),
+                      const SizedBox(height: 8),
+                      Text('Selesaikan pembayaran agar makanan segera diproses.', textAlign: TextAlign.center, style: AppTextStyles.bodyMedium),
+                      const SizedBox(height: 24),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                        ),
+                        child: Column(
+                          children: [
+                            Text('No. Virtual Account', style: AppTextStyles.label),
+                            const SizedBox(height: 8),
+                            Text(virtualAccountNumber, style: AppTextStyles.headingMedium.copyWith(letterSpacing: 2.5, color: AppColors.primaryDark, fontWeight: FontWeight.w800)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        child: AppPrimaryButton(
+                          label: 'Lanjut Pembayaran',
+                          onTap: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => VirtualAccountPage(virtualAccountNumber: virtualAccountNumber)),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    } catch (error) {
+      if (mounted) Navigator.pop(context); // Tutup loading
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $error'), backgroundColor: AppColors.error));
+    }
+  }
+
   String _generateVirtualAccountNumber() {
     final random = Random();
-    final accountNumber =
-        List.generate(15, (index) => random.nextInt(10)).join();
-    return accountNumber;
+    return List.generate(15, (index) => random.nextInt(10)).join();
   }
 
   @override
   Widget build(BuildContext context) {
-    final NumberFormat currencyFormatter =
-        NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
+    final NumberFormat currencyFormatter = NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
     int totalPrice = widget.kuliner.price * _quantity;
 
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double fontSizeTitle = screenWidth * 0.035;
-    final double fontSizeSubTitle = screenWidth * 0.04;
-    final double iconSize = screenWidth * 0.05;
-    final double padding = screenWidth * 0.04;
-    final double spacing = screenHeight * 0.02;
-
     return Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: color1),
-          centerTitle: true,
-          backgroundColor: color2,
-          title: Text(
-            'Payment',
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: MediaQuery.of(context).size.width * 0.05),
-          ),
-        ),
-        body: Padding(
-          padding: EdgeInsets.all(padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: _showAddressDialog,
-                child: AbsorbPointer(
-                  child: TextField(
-                    controller: _completeAddressController,
-                    decoration: InputDecoration(
-                      labelText: 'Address',
-                      border: const OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: padding, horizontal: padding),
-                    ),
-                    readOnly: true,
-                    style: TextStyle(fontSize: fontSizeSubTitle),
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-              SizedBox(height: spacing),
-              ListTile(
-                leading: Image.network(widget.kuliner.imageUrl,
-                    width: MediaQuery.of(context).size.width * 0.2,
-                    fit: BoxFit.fill),
-                title: Text(
-                  widget.kuliner.name,
-                  style: TextStyle(fontSize: fontSizeTitle),
-                ),
-                subtitle: Text(
-                  currencyFormatter.format(widget.kuliner.price),
-                  style: TextStyle(fontSize: fontSizeSubTitle),
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        elevation: 0,
+        flexibleSpace: Container(decoration: appBarGradient()),
+        iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: true,
+        title: Text('Pemesanan', style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
+      ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // --- KARTU PENGIRIMAN ---
+            Text('Alamat Pengiriman', style: AppTextStyles.headingSmall),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: _showAddressDialog,
+              child: Container(
+                decoration: AppDecorations.card,
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.remove, size: iconSize),
-                      onPressed: () {
-                        if (_quantity > 1) {
-                          setState(() {
-                            _quantity--;
-                          });
-                        }
-                      },
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+                      child: const Icon(Icons.location_on_rounded, color: AppColors.primary),
                     ),
-                    Text(
-                      '$_quantity',
-                      style: TextStyle(fontSize: fontSizeSubTitle),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_completeAddressController.text.isEmpty ? 'Pilih Alamat Pengiriman' : 'Alamat Anda', style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
+                          const SizedBox(height: 4),
+                          Text(
+                            _completeAddressController.text.isEmpty ? 'Belum diatur' : _completeAddressController.text,
+                            style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: _completeAddressController.text.isEmpty ? AppColors.error : AppColors.textPrimary),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.add, size: iconSize),
-                      onPressed: () {
-                        setState(() {
-                          _quantity++;
-                        });
-                      },
-                    ),
+                    const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
                   ],
                 ),
               ),
-              SizedBox(height: spacing),
-              TextField(
-                controller: _notesController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-                style: TextStyle(fontSize: fontSizeSubTitle),
-                minLines: 1,
+            ),
+            
+            const SizedBox(height: 24),
+            Text('Detail Pesanan', style: AppTextStyles.headingSmall),
+            const SizedBox(height: 12),
+            
+            // --- KARTU MENU KULINER ---
+            Container(
+              decoration: AppDecorations.card,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(widget.kuliner.imageUrl, width: 80, height: 80, fit: BoxFit.cover),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.kuliner.name, style: AppTextStyles.headingSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                            const SizedBox(height: 4),
+                            Text(currencyFormatter.format(widget.kuliner.price), style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(color: AppColors.divider, height: 1),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Jumlah Porsi', style: AppTextStyles.bodyMedium),
+                      Container(
+                        decoration: BoxDecoration(color: AppColors.surfaceAlt, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.divider)),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove_rounded, size: 18),
+                              color: AppColors.textSecondary,
+                              onPressed: () {
+                                if (_quantity > 1) setState(() => _quantity--);
+                              },
+                            ),
+                            Text('$_quantity', style: AppTextStyles.headingSmall),
+                            IconButton(
+                              icon: const Icon(Icons.add_rounded, size: 18),
+                              color: AppColors.primary,
+                              onPressed: () => setState(() => _quantity++),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _notesController,
+                    style: AppTextStyles.bodyMedium,
+                    decoration: AppDecorations.inputDecoration('Catatan (misal: pedas, tanpa seledri)', icon: Icons.edit_note_rounded),
+                    maxLines: 2,
+                    minLines: 1,
+                  ),
+                ],
               ),
-              SizedBox(height: spacing),
-              InputDecorator(
-                decoration: InputDecoration(
-                  labelText: 'Payment Method',
-                  border: const OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: padding, horizontal: padding),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
+            ),
+            
+            const SizedBox(height: 24),
+            Text('Metode Pembayaran', style: AppTextStyles.headingSmall),
+            const SizedBox(height: 12),
+            
+            // --- KARTU METODE PEMBAYARAN ---
+            Container(
+              decoration: AppDecorations.card,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  DropdownButtonFormField<String>(
                     value: _selectedPaymentMethod,
-                    isDense: true,
+                    decoration: AppDecorations.inputDecoration('Jenis Pembayaran', icon: Icons.payment_rounded),
+                    icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                     onChanged: (value) {
                       setState(() {
                         _selectedPaymentMethod = value!;
                       });
                     },
-                    items: ['Transfer Bank', 'E-Wallet']
-                        .map((method) => DropdownMenuItem<String>(
-                              value: method,
-                              child: Text(method,
-                                  style: TextStyle(fontSize: fontSizeSubTitle)),
-                            ))
-                        .toList(),
+                    items: ['Transfer Bank', 'E-Wallet'].map((method) => DropdownMenuItem(value: method, child: Text(method, style: AppTextStyles.bodyLarge))).toList(),
                   ),
-                ),
-              ),
-              SizedBox(
-                height: spacing,
-              ),
-              if (_selectedPaymentMethod == 'E-Wallet')
-                InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'E-Wallet',
-                    border: const OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(
-                        vertical: padding, horizontal: padding),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
+                  const SizedBox(height: 16),
+                  if (_selectedPaymentMethod == 'E-Wallet')
+                    DropdownButtonFormField<String>(
                       value: _selectedEWallet,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedEWallet = value!;
-                        });
-                      },
-                      items: ['Gopay', 'Ovo', 'Dana']
-                          .map((ewallet) => DropdownMenuItem<String>(
-                                value: ewallet,
-                                child: Text(ewallet,
-                                    style: TextStyle(fontSize: fontSizeSubTitle)),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                ),
-              if (_selectedPaymentMethod == 'Transfer Bank')
-                InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'Transfer Bank',
-                    border: const OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(
-                        vertical: padding, horizontal: padding),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
+                      decoration: AppDecorations.inputDecoration('Pilih E-Wallet', icon: Icons.account_balance_wallet_rounded),
+                      icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
+                      onChanged: (value) => setState(() => _selectedEWallet = value!),
+                      items: ['Gopay', 'Ovo', 'Dana', 'ShopeePay'].map((ewallet) => DropdownMenuItem(value: ewallet, child: Text(ewallet, style: AppTextStyles.bodyLarge))).toList(),
+                    )
+                  else
+                    DropdownButtonFormField<String>(
                       value: _selectedBankTransfer,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedBankTransfer = value!;
-                        });
-                      },
-                      items: ['BCA', 'BRI', 'BNI', 'Mandiri']
-                          .map((bank) => DropdownMenuItem<String>(
-                                value: bank,
-                                child: Text(bank,
-                                    style: TextStyle(fontSize: fontSizeSubTitle)),
-                              ))
-                          .toList(),
+                      decoration: AppDecorations.inputDecoration('Pilih Bank', icon: Icons.account_balance_rounded),
+                      icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
+                      onChanged: (value) => setState(() => _selectedBankTransfer = value!),
+                      items: ['BCA', 'BRI', 'BNI', 'Mandiri'].map((bank) => DropdownMenuItem(value: bank, child: Text(bank, style: AppTextStyles.bodyLarge))).toList(),
                     ),
-                  ),
-                ),
-            ],
-          ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
         ),
-        bottomNavigationBar: Container(
-          height: screenHeight * 0.07,
-          decoration: const BoxDecoration(boxShadow: [
-            BoxShadow(
-                blurStyle: BlurStyle.outer,
-                color: Colors.black,
-                blurRadius: 3,
-                offset: Offset(0, 0),
-                spreadRadius: 1)
-          ]),
-          child: Row(
-            children: [
-              Expanded(
-                  child: Container(
-                alignment: Alignment.center,
-                child: Text(
-                  currencyFormatter.format(totalPrice),
-                  style: TextStyle(fontSize: fontSizeSubTitle),
-                ),
-              )),
-              Expanded(
-                  child: InkWell(
-                onTap: _confirmPurchase,
-                child: Container(
-                  decoration: const BoxDecoration(
-                      color: color2,
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Buy",
-                    style: TextStyle(
-                        color: Colors.white, fontSize: fontSizeSubTitle),
+      ),
+      
+      // --- STICKY BOTTOM BAR ---
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16).copyWith(
+          bottom: MediaQuery.of(context).padding.bottom > 0 ? MediaQuery.of(context).padding.bottom + 8 : 16,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          boxShadow: [
+            BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, -5))
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Total Harga', style: AppTextStyles.caption),
+                  const SizedBox(height: 2),
+                  Text(
+                    currencyFormatter.format(totalPrice),
+                    style: AppTextStyles.headingMedium.copyWith(color: AppColors.primary),
                   ),
-                ),
-              ))
-            ],
-          ),
-        ));
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: AppPrimaryButton(
+                label: 'Bayar',
+                icon: Icons.check_circle_outline_rounded,
+                onTap: _confirmPurchase,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
