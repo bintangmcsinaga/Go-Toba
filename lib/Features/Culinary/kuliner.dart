@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:go_toba/Providers/UserProv.dart';
-import 'package:go_toba/style.dart';
+import 'package:go_toba/style.dart'; // Import style.dart kamu
 import 'KulinerModel.dart';
 import 'KulinerDetail.dart';
 
@@ -58,119 +58,220 @@ class _KulinerWidgetState extends State<KulinerWidget> {
   Future<void> readData() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     var data = await db.collection('kuliner').get();
-    setState(() {
-      kuliner =
-          data.docs.map((doc) => KulinerModel.fromDocSnapshot(doc)).toList();
-      isLoading = false;
-    });
+    
+    if (mounted) {
+      setState(() {
+        kuliner =
+            data.docs.map((doc) => KulinerModel.fromDocSnapshot(doc)).toList();
+        isLoading = false;
+      });
+    }
+  }
+
+  // Efek Loading Modern (Skeleton)
+  Widget _buildSkeletonLoader() {
+    return ListView.separated(
+      padding: const EdgeInsets.all(20),
+      itemCount: 6,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        return Container(
+          height: 120,
+          decoration: BoxDecoration(
+            color: AppColors.shimmer1,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: AppColors.shimmer2,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(height: 16, width: double.infinity, color: AppColors.shimmer2),
+                    const SizedBox(height: 8),
+                    Container(height: 14, width: 100, color: AppColors.shimmer2),
+                    const SizedBox(height: 16),
+                    Container(height: 20, width: 80, color: AppColors.shimmer2),
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final userId = context.read<UserProvider>().uid;
     final NumberFormat currencyFormatter =
-        NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
-
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double fontSizeTitle = screenWidth * 0.03;
-    final double fontSizePrice = screenWidth * 0.03;
-    final double iconSize = screenWidth * 0.03;
-    final double padding = screenWidth * 0.02;
-    final double spacing = screenHeight * 0.01;
+        NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0);
 
     return Scaffold(
-      // floatingActionButton: ElevatedButton(
-      //     onPressed: () {
-      //       Navigator.push(
-      //           context,
-      //           MaterialPageRoute(
-      //               builder: (context) => const AddKulinerPage()));
-      //     },
-      //     child: const Icon(Icons.add)),
+      backgroundColor: AppColors.background, // Menggunakan background style.dart
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: color1),
+        elevation: 0,
+        flexibleSpace: Container(decoration: appBarGradient()), // Header premium
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
-        backgroundColor: color2,
         title: Text(
-          'Culinary',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: screenWidth * 0.05,
-          ),
+          'Kuliner Khas',
+          style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
         ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: kuliner.length,
-              itemBuilder: (context, index) {
-                final item = kuliner[index];
-                return InkWell(
-                  onTap: () {
-                    updateUserTags(userId!, item.tags);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => KulinerDetail(kuliner: item),
+          ? _buildSkeletonLoader()
+          : kuliner.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.restaurant_menu_rounded, size: 80, color: AppColors.divider),
+                      const SizedBox(height: 16),
+                      Text('Belum ada data kuliner', style: AppTextStyles.bodyLarge),
+                    ],
+                  ),
+                )
+              : ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(20),
+                  itemCount: kuliner.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final item = kuliner[index];
+                    
+                    // Animasi Staggered Slide-Up & Fade-In
+                    return TweenAnimationBuilder<double>(
+                      duration: Duration(milliseconds: 400 + (index * 100).clamp(0, 500)),
+                      tween: Tween<double>(begin: 0, end: 1),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) {
+                        return Opacity(
+                          opacity: value,
+                          child: Transform.translate(
+                            offset: Offset(0, 30 * (1 - value)),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: GestureDetector(
+                        onTap: () {
+                          if (userId != null) {
+                            updateUserTags(userId, item.tags);
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => KulinerDetail(kuliner: item),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 130,
+                          decoration: AppDecorations.card, // Card premium
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              // Gambar Kuliner
+                              Hero(
+                                tag: item.imageUrl, // Animasi transisi gambar
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Image.network(
+                                    item.imageUrl,
+                                    width: 106,
+                                    height: double.infinity,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Container(
+                                        width: 106,
+                                        color: AppColors.shimmer1,
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        width: 106,
+                                        color: AppColors.shimmer2,
+                                        child: const Icon(Icons.broken_image_rounded, color: AppColors.textSecondary),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              
+                              // Detail Kuliner
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      item.name,
+                                      style: AppTextStyles.headingSmall,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    
+                                    // Widget Rating dari style.dart
+                                    AppRatingBar(rating: item.rating.toDouble(), size: 16),
+                                    
+                                    const Spacer(),
+                                    
+                                    // Harga & Tag
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          currencyFormatter.format(item.price),
+                                          style: AppTextStyles.headingMedium.copyWith(
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                        // Menampilkan tag pertama jika ada
+                                        if (item.tags.isNotEmpty)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.accentLight,
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              item.tags.first.toUpperCase(),
+                                              style: AppTextStyles.caption.copyWith(
+                                                color: const Color(0xFF7D5A00),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 9,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     );
                   },
-                  child: Card(
-                    margin: EdgeInsets.all(padding),
-                    child: Padding(
-                      padding: EdgeInsets.all(padding),
-                      child: Row(
-                        children: [
-                          Image.network(
-                            item.imageUrl,
-                            width: screenWidth * 0.2,
-                            height: screenWidth * 0.2,
-                            fit: BoxFit.cover,
-                          ),
-                          SizedBox(width: spacing),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.name,
-                                  style: TextStyle(
-                                    fontSize: fontSizeTitle,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: spacing),
-                                Text(
-                                  currencyFormatter.format(item.price),
-                                  style: TextStyle(
-                                      fontSize: fontSizePrice,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                                SizedBox(height: spacing),
-                                Row(
-                                  children: List.generate(5, (index) {
-                                    return Icon(
-                                      index < item.rating
-                                          ? Icons.star
-                                          : Icons.star_border,
-                                      color: Colors.amber,
-                                      size: iconSize,
-                                    );
-                                  }),
-                                ),
-                                SizedBox(height: spacing),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+                ),
     );
   }
 }
