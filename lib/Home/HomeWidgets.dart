@@ -57,13 +57,20 @@ class _FeatureItemState extends State<FeatureItem>
               Container(
                 width: 52,
                 height: 52,
-                decoration: const BoxDecoration(
-                  gradient: AppGradients.primary,
+                decoration: BoxDecoration(
+                  color: widget.feature['color'] ?? Colors.blueAccent,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: (widget.feature['color'] ?? Colors.blueAccent).withOpacity(0.18),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Icon(
                   widget.feature['icon'] as IconData,
-                  size: 26,
+                  size: 28,
                   color: Colors.white,
                 ),
               ),

@@ -33,12 +33,36 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin, RouteAware {
   final List<Map<String, dynamic>> features = [
-    {'icon': Icons.bedroom_parent_rounded, 'name': 'Hotels'},
-    {'icon': Icons.sailing_rounded, 'name': 'Ships'},
-    {'icon': Icons.landscape_rounded, 'name': 'Vacations'},
-    {'icon': Icons.auto_stories_rounded, 'name': 'Moments'},
-    {'icon': Icons.local_dining_rounded, 'name': 'Culinary'},
-    {'icon': Icons.directions_bus_rounded, 'name': 'Bus'},
+    {
+      'icon': Icons.hotel_rounded,
+      'name': 'Hotels',
+      'color': Color(0xFF42A5F5), // Blue
+    },
+    {
+      'icon': Icons.directions_boat_filled_rounded,
+      'name': 'Ships',
+      'color': Color(0xFF26C6DA), // Cyan
+    },
+    {
+      'icon': Icons.park_rounded,
+      'name': 'Vacations',
+      'color': Color(0xFF66BB6A), // Green
+    },
+    {
+      'icon': Icons.camera_alt_rounded,
+      'name': 'Moments',
+      'color': Color(0xFFFFA726), // Orange
+    },
+    {
+      'icon': Icons.restaurant_menu_rounded,
+      'name': 'Culinary',
+      'color': Color(0xFFAB47BC), // Purple
+    },
+    {
+      'icon': Icons.directions_bus_filled_rounded,
+      'name': 'Bus',
+      'color': Color(0xFFEC407A), // Pink
+    },
   ];
 
   Future<List<Hotel>>? _hotelsFuture;
@@ -365,7 +389,7 @@ class _HomePageState extends State<HomePage>
                 horizontalPadding,
                 8,
                 horizontalPadding,
-                30, // Bottom padding lebih lega
+                30,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
