@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart';
 
 // ── Feature Item (grid tile on HomePage) ────────────────────────────────────
@@ -273,7 +274,7 @@ class SectionHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Text(
-                'See All',
+                context.l10n.seeAll,
                 style: AppTextStyles.label.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,

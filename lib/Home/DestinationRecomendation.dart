@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_toba/Features/Vacations/VacationsDetail.dart';
 import 'package:go_toba/Features/Vacations/VacationsModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart'; // Import style.dart
 
 class DestinationRecommendationPage extends StatefulWidget {
@@ -124,7 +125,7 @@ class _DestinationRecommendationPageState
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Destination Recommendations',
+                context.l10n.destinationRecommendations,
                 style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
               ),
               centerTitle: true,
@@ -161,10 +162,10 @@ class _DestinationRecommendationPageState
                             children: [
                               Icon(Icons.landscape_rounded, size: 80, color: AppColors.divider),
                               const SizedBox(height: 16),
-                              Text('No Recommendations Yet', style: AppTextStyles.headingSmall),
+                              Text(context.l10n.noRecommendationsYetTitle, style: AppTextStyles.headingSmall),
                               const SizedBox(height: 8),
                               Text(
-                                'Explore more destinations so we can recommend places that fit you better.',
+                                context.l10n.exploreMoreDestinations,
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.bodyMedium,
                               ),

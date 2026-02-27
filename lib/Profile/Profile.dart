@@ -1,10 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:go_toba/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_toba/Login&Register/login.dart';
 import 'package:go_toba/Profile/ChangePassword.dart';
 import 'package:go_toba/Profile/EditProfile.dart';
+import 'package:go_toba/Providers/LocaleProv.dart';
 import 'package:go_toba/Providers/NavBarProv.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/Utils/DatabaseSeeder.dart';
@@ -54,8 +56,63 @@ class _ProfileState extends State<Profile>
     );
   }
 
+  void _showLanguagePicker() {
+    final l10n = AppLocalizations.of(context)!;
+    final localeProvider = context.read<LocaleProvider>();
+    final currentCode = localeProvider.locale.languageCode;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.chooseLanguage, style: AppTextStyles.headingMedium),
+                const SizedBox(height: 12),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.language_rounded),
+                  title: Text(l10n.english),
+                  trailing: currentCode == 'en'
+                      ? const Icon(Icons.check_rounded, color: AppColors.primary)
+                      : null,
+                  onTap: () async {
+                    await localeProvider.setLocale(const Locale('en'));
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.language_rounded),
+                  title: Text(l10n.indonesian),
+                  trailing: currentCode == 'id'
+                      ? const Icon(Icons.check_rounded, color: AppColors.primary)
+                      : null,
+                  onTap: () async {
+                    await localeProvider.setLocale(const Locale('id'));
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // Function to show confirmation pop-up
   void _confirmLogout() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -76,14 +133,14 @@ class _ProfileState extends State<Profile>
               ),
               const SizedBox(height: 16),
               Text(
-                'Sign Out',
+                l10n.signOutTitle,
                 style: AppTextStyles.headingMedium,
                 textAlign: TextAlign.center,
               ),
             ],
           ),
           content: Text(
-            'Are you sure you want to sign out from this account?',
+            l10n.signOutConfirm,
             style: AppTextStyles.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -98,7 +155,7 @@ class _ProfileState extends State<Profile>
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      'Cancel',
+                      l10n.cancel,
                       style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
                     ),
                   ),
@@ -119,7 +176,7 @@ class _ProfileState extends State<Profile>
                       ),
                     ),
                     child: Text(
-                      'Sign Out',
+                      l10n.signOut,
                       style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14),
                     ),
                   ),
@@ -135,6 +192,7 @@ class _ProfileState extends State<Profile>
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -198,7 +256,7 @@ class _ProfileState extends State<Profile>
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            user.username.isEmpty ? 'User' : user.username,
+                            user.username.isEmpty ? l10n.user : user.username,
                             style: AppTextStyles.headingMedium.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -234,13 +292,13 @@ class _ProfileState extends State<Profile>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const _SectionLabel('Account'),
+                  _SectionLabel(l10n.account),
                   const SizedBox(height: 8),
                   _ProfileSection(tiles: [
                     _ProfileTile(
                       icon: Icons.edit_outlined,
                       color: AppColors.primary,
-                      label: 'Edit Profile',
+                      label: l10n.editProfile,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -250,7 +308,7 @@ class _ProfileState extends State<Profile>
                     _ProfileTile(
                       icon: Icons.lock_outline_rounded,
                       color: AppColors.primaryDark,
-                      label: 'Change Password',
+                      label: l10n.changePassword,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -260,41 +318,41 @@ class _ProfileState extends State<Profile>
                     _ProfileTile(
                       icon: Icons.language_rounded,
                       color: AppColors.info,
-                      label: 'Language',
-                      onTap: () {},
+                      label: l10n.language,
+                      onTap: _showLanguagePicker,
                     ),
                   ]),
                   const SizedBox(height: 20),
-                  const _SectionLabel('Information'),
+                  _SectionLabel(l10n.information),
                   const SizedBox(height: 8),
                   _ProfileSection(tiles: [
                     _ProfileTile(
                       icon: Icons.description_outlined,
                       color: AppColors.accent,
-                      label: 'Terms & Conditions',
+                      label: l10n.terms,
                       onTap: () {},
                     ),
                     _ProfileTile(
                       icon: Icons.privacy_tip_outlined,
                       color: const Color(0xFF8E44AD),
-                      label: 'Privacy Policy',
+                      label: l10n.privacy,
                       onTap: () {},
                     ),
                     _ProfileTile(
                       icon: Icons.support_agent_rounded,
                       color: AppColors.success,
-                      label: 'Customer Service',
+                      label: l10n.customer,
                       onTap: () {},
                     ),
                   ]),
                   const SizedBox(height: 20),
-                  const _SectionLabel('Developer'),
+                  _SectionLabel(l10n.developer),
                   const SizedBox(height: 8),
                   _ProfileSection(tiles: [
                     _ProfileTile(
                       icon: Icons.storage_rounded,
                       color: Colors.orange,
-                      label: 'Seed Database',
+                      label: l10n.seed,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -307,14 +365,14 @@ class _ProfileState extends State<Profile>
                     _ProfileTile(
                       icon: Icons.logout_rounded,
                       color: AppColors.error,
-                      label: 'Sign Out',
+                      label: l10n.signOut,
                       textColor: AppColors.error,
                       onTap: _confirmLogout, // Calls confirmation pop-up
                     ),
                   ]),
                   const SizedBox(height: 24),
                   Center(
-                    child: Text('Beta V1.0',
+                    child: Text(l10n.beta,
                         style: AppTextStyles.caption
                             .copyWith(color: AppColors.textSecondary)),
                   ),

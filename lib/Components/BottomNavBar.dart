@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/NavBarProv.dart';
 import 'package:go_toba/style.dart';
 
@@ -43,21 +44,21 @@ class _BottomNavBarState extends State<BottomNavBar> {
           prov.setCurrentIndex = idx;
         },
         currentIndex: prov.currentIndex,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            activeIcon: Icon(Icons.home_rounded),
-            label: "Home",
+            icon: const Icon(Icons.home_rounded),
+            activeIcon: const Icon(Icons.home_rounded),
+            label: context.l10n.home,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history_rounded),
-            activeIcon: Icon(Icons.history_rounded),
-            label: "History",
+            icon: const Icon(Icons.history_rounded),
+            activeIcon: const Icon(Icons.history_rounded),
+            label: context.l10n.history,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded),
-            activeIcon: Icon(Icons.person_rounded),
-            label: "Profile",
+            icon: const Icon(Icons.person_rounded),
+            activeIcon: const Icon(Icons.person_rounded),
+            label: context.l10n.profile,
           )
         ],
       ),

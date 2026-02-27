@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:go_toba/Features/Bus/BusDetail.dart';
 import 'package:go_toba/Features/Bus/BusModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart';
 
 class BusTicketOrderPage extends StatefulWidget {
@@ -158,13 +159,12 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // ── Premium AppBar ────────────────────────────────────────────
           SliverAppBar(
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text('Bus & Travel Tickets',
+              title: Text(context.l10n.busTravelTickets,
                   style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 16),
@@ -191,7 +191,6 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ── Route card ──────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -202,9 +201,9 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Choose Your Route', style: AppTextStyles.headingMedium),
+                        Text(context.l10n.chooseYourRoute, style: AppTextStyles.headingMedium),
                         const SizedBox(height: 6),
-                        Text('Find bus or travel schedules for your trip',
+                        Text(context.l10n.findBusSchedules,
                             style: AppTextStyles.bodyMedium),
                         const SizedBox(height: 24),
 
@@ -214,7 +213,7 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                             Column(
                               children: [
                                 _buildDropdown(
-                                  label: 'Departure City',
+                                  label: context.l10n.departureCity,
                                   icon: Icons.departure_board_rounded,
                                   value: _selectedOrigin,
                                   items: _origins,
@@ -228,7 +227,7 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                                 ),
                                 const SizedBox(height: 16),
                                 _buildDropdown(
-                                  label: 'Destination City',
+                                  label: context.l10n.destinationCity,
                                   icon: Icons.location_on_rounded,
                                   value: _selectedDestination,
                                   items: _getAvailableDestinations(),
@@ -242,7 +241,6 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                               ],
                             ),
 
-                            // Swap Button
                             Positioned(
                               right: 24,
                               child: GestureDetector(
@@ -267,18 +265,17 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
 
                   const SizedBox(height: 32),
 
-                  // ── Results ──────────────────────────────────────────
                   if (_selectedOrigin != null && _selectedDestination != null)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Text('Available Schedules', style: AppTextStyles.headingSmall),
+                            Text(context.l10n.availableSchedules, style: AppTextStyles.headingSmall),
                             const SizedBox(width: 8),
                             if (!_isLoading)
                               AppChip(
-                                label: '${_filteredBusTickets.length} Travel', 
+                                label: '${_filteredBusTickets.length} ${context.l10n.routes}', 
                                 accent: false,
                               ),
                           ],
@@ -299,13 +296,13 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                                 Icon(Icons.directions_bus_filled_outlined, size: 64, color: AppColors.textSecondary.withValues(alpha: 0.5)),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Route Not Found', 
+                                  context.l10n.routeNotFound, 
                                   style: AppTextStyles.headingSmall,
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'No bus schedules are available from $_selectedOrigin to $_selectedDestination yet.', 
+                                  context.l10n.noBusSchedulesFromToYet(_selectedOrigin!, _selectedDestination!), 
                                   style: AppTextStyles.bodyMedium,
                                   textAlign: TextAlign.center,
                                 ),
@@ -351,7 +348,6 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
   }
 }
 
-// ── Realistic Ticket Card ───────────────────────────────────────────────────
 class _BusTicketCard extends StatelessWidget {
   final BusTicket ticket;
   final NumberFormat formatter;
@@ -368,7 +364,6 @@ class _BusTicketCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header band with dark gradient
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: const BoxDecoration(
@@ -390,7 +385,7 @@ class _BusTicketCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Operator Bus/Travel', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text(context.l10n.travelOperator, style: AppTextStyles.label.copyWith(color: Colors.white70)),
                       Text(ticket.transportName, style: AppTextStyles.headingSmall.copyWith(color: Colors.white)),
                     ],
                   ),
@@ -399,7 +394,7 @@ class _BusTicketCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('Price', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text(context.l10n.price, style: AppTextStyles.label.copyWith(color: Colors.white70)),
                       Text(
                         formatter.format(ticket.price).replaceAll(',00', ''), // Buang desimal jika ada
                         style: AppTextStyles.headingMedium.copyWith(color: AppColors.accentLight),
@@ -465,17 +460,17 @@ class _BusTicketCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('FROM', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          Text(context.l10n.from.toUpperCase(), style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                           const SizedBox(height: 4),
                           Text(ticket.from, style: AppTextStyles.headingSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
                         ],
                       ),
                     ),
-                    Expanded(
+                    const Expanded(
                       flex: 2,
                       child: Center(
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 12),
+                          padding: EdgeInsets.only(top: 12),
                           child: Icon(Icons.arrow_forward_rounded, color: AppColors.primaryLight, size: 28),
                         ),
                       ),
@@ -485,7 +480,7 @@ class _BusTicketCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('DESTINATION', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          Text(context.l10n.to.toUpperCase(), style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                           const SizedBox(height: 4),
                           Text(ticket.to, style: AppTextStyles.headingSmall, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right),
                         ],
@@ -500,9 +495,9 @@ class _BusTicketCard extends StatelessWidget {
                 ),
 
                 if (ticket.departTime.isNotEmpty) ...[
-                  Text('Departure Schedule', style: AppTextStyles.label),
+                  Text(context.l10n.departureSchedule, style: AppTextStyles.label),
                   const SizedBox(height: 10),
-                  // Menggunakan Wrap untuk mencegah overflow jika jam keberangkatan banyak
+                  // Menggunakan Wrap untuk mencegah overflow
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -517,7 +512,7 @@ class _BusTicketCard extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.schedule_rounded, size: 14, color: AppColors.textSecondary),
+                            const Icon(Icons.schedule_rounded, size: 14, color: AppColors.textSecondary),
                             const SizedBox(width: 4),
                             Text(time, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
                           ],
@@ -532,7 +527,7 @@ class _BusTicketCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: AppPrimaryButton(
-                    label: 'Book Ticket',
+                    label: context.l10n.bookTicket,
                     icon: Icons.confirmation_number_outlined,
                     onTap: () => Navigator.push(
                       context,

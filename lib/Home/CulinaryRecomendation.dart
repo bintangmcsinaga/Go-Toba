@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:go_toba/Features/Culinary/KulinerDetail.dart';
 import 'package:go_toba/Features/Culinary/KulinerModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart'; 
 
 class CulinaryRecommendationPage extends StatefulWidget {
@@ -143,7 +144,7 @@ class _CulinaryRecommendationPageState
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Culinary Recommendations',
+                context.l10n.culinaryRecommendations,
                 style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
               ),
               centerTitle: true,
@@ -180,10 +181,10 @@ class _CulinaryRecommendationPageState
                             children: [
                               Icon(Icons.restaurant_rounded, size: 80, color: AppColors.divider),
                               const SizedBox(height: 16),
-                              Text('No Recommendations Yet', style: AppTextStyles.headingSmall),
+                              Text(context.l10n.noRecommendationsYetTitle, style: AppTextStyles.headingSmall),
                               const SizedBox(height: 8),
                               Text(
-                                'Explore more culinary spots so we can recommend dishes that match your taste.',
+                                context.l10n.exploreMoreCulinary,
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.bodyMedium,
                               ),

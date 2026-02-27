@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:go_toba/Features/Culinary/KulinerModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart'; // Import style.dart
 
 class KulinerReview extends StatefulWidget {
@@ -22,7 +23,7 @@ class _KulinerReviewState extends State<KulinerReview> {
         .doc(widget.kulinerId)
         .collection('reviews');
 
-    if (filter == 'Latest' || filter.isEmpty) {
+    if (filter == 'latest' || filter.isEmpty) {
       query = query.orderBy('tanggal', descending: true);
     } else {
       // Filter berdasarkan rating
@@ -55,7 +56,7 @@ class _KulinerReviewState extends State<KulinerReview> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
-          'All Reviews',
+          context.l10n.allReviews,
           style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
         ),
         actions: [
@@ -66,7 +67,7 @@ class _KulinerReviewState extends State<KulinerReview> {
               shape: BoxShape.circle,
             ),
             child: PopupMenuButton<String>(
-              tooltip: 'Filter Reviews',
+              tooltip: context.l10n.filterReviews,
               icon: const Icon(Icons.filter_list_rounded, color: Colors.white),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -79,8 +80,8 @@ class _KulinerReviewState extends State<KulinerReview> {
               itemBuilder: (BuildContext context) {
                 return [
                   PopupMenuItem(
-                    value: 'Latest',
-                    child: Text('Latest', style: AppTextStyles.bodyMedium),
+                    value: 'latest',
+                    child: Text(context.l10n.latest, style: AppTextStyles.bodyMedium),
                   ),
                   const PopupMenuDivider(),
                   ...List.generate(5, (index) {
@@ -103,7 +104,7 @@ class _KulinerReviewState extends State<KulinerReview> {
         ],
       ),
       body: StreamBuilder<List<Review>>(
-        stream: _reviewsStream(_selectedFilter ?? 'Latest'),
+        stream: _reviewsStream(_selectedFilter ?? 'latest'),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -113,7 +114,7 @@ class _KulinerReviewState extends State<KulinerReview> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'An error occurred while loading reviews.',
+                context.l10n.errorLoadingReviews,
                 style: AppTextStyles.bodyMedium,
               ),
             );
@@ -127,7 +128,7 @@ class _KulinerReviewState extends State<KulinerReview> {
                       size: 64, color: AppColors.divider),
                   const SizedBox(height: 16),
                   Text(
-                    'No matching reviews yet.',
+                    context.l10n.noMatchingReviewsYet,
                     style: AppTextStyles.bodyMedium,
                   ),
                 ],
@@ -139,19 +140,19 @@ class _KulinerReviewState extends State<KulinerReview> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_selectedFilter != null && _selectedFilter != 'Latest')
+              if (_selectedFilter != null && _selectedFilter != 'latest')
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                   child: Row(
                     children: [
-                      Text('Showing filter: ',
+                      Text('${context.l10n.showingFilter} ',
                           style: AppTextStyles.bodyMedium),
-                      AppChip(label: '$_selectedFilter Stars', accent: true),
+                      AppChip(label: '$_selectedFilter ${context.l10n.stars}', accent: true),
                       const Spacer(),
                       GestureDetector(
-                        onTap: () => setState(() => _selectedFilter = 'Latest'),
+                        onTap: () => setState(() => _selectedFilter = 'latest'),
                         child: Text(
-                          'Clear',
+                          context.l10n.clear,
                           style: AppTextStyles.label
                               .copyWith(color: AppColors.error),
                         ),
@@ -212,7 +213,7 @@ class _KulinerReviewState extends State<KulinerReview> {
         }
 
         Map<String, dynamic> userData = userSnapshot.data ?? {};
-        String username = userData['username'] ?? 'Traveler';
+        String username = userData['username'] ?? context.l10n.traveler;
         String profilephoto = userData['profilephoto'] ?? '';
 
         return Container(

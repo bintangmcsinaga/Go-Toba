@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_toba/Features/Ships/VirtualAccountPage.dart';
 import 'package:go_toba/Features/Ships/ShipModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart'; // Import design system
 
@@ -34,7 +35,10 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
 
   String _portLabel(String portName) {
     if (portName.startsWith('Pelabuhan ')) {
-      return '${portName.replaceFirst('Pelabuhan ', '')} Port';
+      return portName.replaceFirst('Pelabuhan ', '');
+    }
+    if (portName.startsWith('Port ')) {
+      return portName.replaceFirst('Port ', '');
     }
     return portName;
   }
@@ -94,12 +98,12 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Confirm Order', style: AppTextStyles.headingMedium),
+          title: Text(context.l10n.confirmOrder, style: AppTextStyles.headingMedium),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Ship Route', style: AppTextStyles.label),
+              Text(context.l10n.shipRoute, style: AppTextStyles.label),
               const SizedBox(height: 4),
               Text('${_portLabel(widget.ticket.from)} -> ${_portLabel(widget.ticket.to)}', style: AppTextStyles.bodyMedium),
               
@@ -114,14 +118,14 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Date', style: AppTextStyles.label),
+                      Text(context.l10n.date, style: AppTextStyles.label),
                       Text(_selectedDate != null ? DateFormat("dd MMM yyyy").format(_selectedDate!) : '-', style: AppTextStyles.bodyMedium),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('Time', style: AppTextStyles.label),
+                      Text(context.l10n.time, style: AppTextStyles.label),
                       Text('$_selectedDepartureTime', style: AppTextStyles.bodyMedium),
                     ],
                   ),
@@ -136,15 +140,15 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Passengers', style: AppTextStyles.bodyMedium),
-                  Text('$_selectedNumberOfPeople People', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
+                  Text(context.l10n.passengers, style: AppTextStyles.bodyMedium),
+                  Text('$_selectedNumberOfPeople ${context.l10n.people}', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Payment', style: AppTextStyles.bodyMedium),
+                  Text(context.l10n.payment, style: AppTextStyles.bodyMedium),
                   Text('$_selectedPaymentOption', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
@@ -155,7 +159,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total Price', style: AppTextStyles.headingSmall),
+                    Text(context.l10n.totalPrice, style: AppTextStyles.headingSmall),
                     Text(
                       currencyFormatter.format(widget.ticket.price * _selectedNumberOfPeople),
                       style: AppTextStyles.headingSmall.copyWith(color: AppColors.primary),
@@ -167,7 +171,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel', style: AppTextStyles.button.copyWith(color: AppColors.textSecondary)),
+              child: Text(context.l10n.cancel, style: AppTextStyles.button.copyWith(color: AppColors.textSecondary)),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             ElevatedButton(
@@ -175,7 +179,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: Text('Confirm', style: AppTextStyles.button.copyWith(color: Colors.white)),
+              child: Text(context.l10n.confirm, style: AppTextStyles.button.copyWith(color: Colors.white)),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 _processBooking(parentContext, user, virtualAccountNumber);
@@ -208,7 +212,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
               const SizedBox(height: 16),
               DefaultTextStyle(
                 style: AppTextStyles.label,
-                child: const Text('Processing your order...'),
+                child: Text(context.l10n.processingOrder),
               ),
             ],
           ),
@@ -298,9 +302,9 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                 },
                 child: Column(
                   children: [
-                    Text('Order Successful!', style: AppTextStyles.headingMedium),
+                    Text(context.l10n.orderSuccessful, style: AppTextStyles.headingMedium),
                     const SizedBox(height: 8),
-                    Text('Please complete your payment.', textAlign: TextAlign.center, style: AppTextStyles.bodyMedium),
+                    Text(context.l10n.pleaseCompletePayment, textAlign: TextAlign.center, style: AppTextStyles.bodyMedium),
                     const SizedBox(height: 24),
                     Container(
                       width: double.infinity,
@@ -312,7 +316,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                       ),
                       child: Column(
                         children: [
-                          Text('No. Virtual Account', style: AppTextStyles.label),
+                          Text(context.l10n.virtualAccountNumberLabel, style: AppTextStyles.label),
                           const SizedBox(height: 8),
                           Text(
                             virtualAccountNumber,
@@ -325,7 +329,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                     SizedBox(
                       width: double.infinity,
                       child: AppPrimaryButton(
-                        label: 'Continue to Payment',
+                        label: context.l10n.continueToPayment,
                         onTap: () {
                           Navigator.pushReplacement(
                             parentContext,
@@ -346,7 +350,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
     } catch (e) {
       Navigator.pop(parentContext); // Tutup loading
       Fluttertoast.showToast(
-          msg: "Booking failed: $e",
+          msg: context.l10n.errorOccurred(e.toString()),
           gravity: ToastGravity.TOP,
           backgroundColor: AppColors.error,
           textColor: Colors.white);
@@ -372,7 +376,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
         flexibleSpace: Container(decoration: appBarGradient()),
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
-          'Booking Details',
+          context.l10n.bookingDetails,
           style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
         ),
       ),
@@ -389,7 +393,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Travel Route', style: AppTextStyles.headingSmall),
+                  Text(context.l10n.travelRoute, style: AppTextStyles.headingSmall),
                   const SizedBox(height: 16),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,10 +410,10 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('From', style: AppTextStyles.caption),
+                            Text(context.l10n.from, style: AppTextStyles.caption),
                             Text(_portLabel(widget.ticket.from), style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
                             const SizedBox(height: 20),
-                            Text('Destination', style: AppTextStyles.caption),
+                            Text(context.l10n.to, style: AppTextStyles.caption),
                             Text(_portLabel(widget.ticket.to), style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
                           ],
                         ),
@@ -421,7 +425,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
             ),
             
             const SizedBox(height: 24),
-            Text('Schedule & Passengers', style: AppTextStyles.headingSmall),
+            Text(context.l10n.schedulePassengers, style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             
             // --- KARTU FORM ---
@@ -436,14 +440,14 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                       child: TextFormField(
                         controller: _dateController,
                         style: AppTextStyles.bodyLarge,
-                        decoration: AppDecorations.inputDecoration('Departure Date', icon: Icons.calendar_month_rounded),
+                        decoration: AppDecorations.inputDecoration(context.l10n.departureDate, icon: Icons.calendar_month_rounded),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     initialValue: _selectedDepartureTime,
-                    decoration: AppDecorations.inputDecoration('Departure Time', icon: Icons.schedule_rounded),
+                    decoration: AppDecorations.inputDecoration(context.l10n.departureTime, icon: Icons.schedule_rounded),
                     icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                     onChanged: (newValue) => setState(() => _selectedDepartureTime = newValue),
                     items: widget.ticket.departTime
@@ -453,11 +457,11 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
                     initialValue: _selectedNumberOfPeople,
-                    decoration: AppDecorations.inputDecoration('Number of Passengers', icon: Icons.group_rounded),
+                    decoration: AppDecorations.inputDecoration(context.l10n.numberOfPassengers, icon: Icons.group_rounded),
                     icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                     onChanged: (newValue) => setState(() => _selectedNumberOfPeople = newValue!),
                     items: List.generate(6, (index) => index + 1)
-                        .map((number) => DropdownMenuItem(value: number, child: Text('$number People', style: AppTextStyles.bodyLarge)))
+                        .map((number) => DropdownMenuItem(value: number, child: Text('$number ${context.l10n.people}', style: AppTextStyles.bodyLarge)))
                         .toList(),
                   ),
                 ],
@@ -465,7 +469,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
             ),
 
             const SizedBox(height: 24),
-            Text('Payment Method', style: AppTextStyles.headingSmall),
+            Text(context.l10n.paymentMethod, style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             
             // --- KARTU PEMBAYARAN ---
@@ -476,7 +480,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                 children: [
                   DropdownButtonFormField<String>(
                     initialValue: _selectedPaymentMethod,
-                    decoration: AppDecorations.inputDecoration('Select Type', icon: Icons.account_balance_wallet_rounded),
+                    decoration: AppDecorations.inputDecoration(context.l10n.selectType, icon: Icons.account_balance_wallet_rounded),
                     icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                     onChanged: (newValue) {
                       setState(() {
@@ -492,7 +496,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       initialValue: _selectedPaymentOption,
-                      decoration: AppDecorations.inputDecoration('Select Bank/Provider', icon: Icons.account_balance_rounded),
+                      decoration: AppDecorations.inputDecoration(context.l10n.selectBankProvider, icon: Icons.account_balance_rounded),
                       icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                       onChanged: (newValue) => setState(() => _selectedPaymentOption = newValue),
                       items: paymentOptions[_selectedPaymentMethod]!
@@ -530,7 +534,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Total Price', style: AppTextStyles.caption),
+                  Text(context.l10n.totalPrice, style: AppTextStyles.caption),
                   const SizedBox(height: 2),
                   Text(
                     currencyFormatter.format(widget.ticket.price * _selectedNumberOfPeople),
@@ -542,7 +546,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
             const SizedBox(width: 16),
             Expanded(
               child: AppPrimaryButton(
-                label: 'Book',
+                label: context.l10n.book,
                 icon: Icons.confirmation_number_rounded,
                 onTap: () {
                   if (_selectedDate != null &&
@@ -552,7 +556,7 @@ class _ShipTicketDetailPageState extends State<ShipTicketDetailPage> {
                     _showConfirmationDialog();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: const Text('Please complete all fields.'),
+                      content: Text(context.l10n.pleaseCompleteAllFields),
                       backgroundColor: AppColors.warning,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

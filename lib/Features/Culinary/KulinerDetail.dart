@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart'; // Menggunakan design system kamu
 import 'package:url_launcher/url_launcher_string.dart';
 import 'KulinerModel.dart';
@@ -34,7 +35,7 @@ class KulinerDetail extends StatelessWidget {
     } else {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unable to open the map link.')),
+          SnackBar(content: Text(context.l10n.unableOpenMapLink)),
         );
       }
     }
@@ -218,7 +219,7 @@ class KulinerDetail extends StatelessWidget {
                                     const Icon(Icons.map_rounded, color: Colors.green, size: 24),
                                     const SizedBox(width: 12),
                                     Text(
-                                      "Open in Google Maps",
+                                      context.l10n.openInGoogleMaps,
                                       style: AppTextStyles.label.copyWith(color: AppColors.textPrimary, fontSize: 14),
                                     ),
                                     const SizedBox(width: 8),
@@ -231,7 +232,7 @@ class KulinerDetail extends StatelessWidget {
                             const SizedBox(height: 32),
                             
                             // Deskripsi
-                            Text('Description', style: AppTextStyles.headingMedium),
+                            Text(context.l10n.description, style: AppTextStyles.headingMedium),
                             const SizedBox(height: 12),
                             Text(
                               kuliner.deskripsi,
@@ -247,7 +248,7 @@ class KulinerDetail extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Latest Reviews', style: AppTextStyles.headingMedium),
+                                Text(context.l10n.latestReviews, style: AppTextStyles.headingMedium),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.push(
@@ -257,7 +258,7 @@ class KulinerDetail extends StatelessWidget {
                                       ),
                                     );
                                   },
-                                  child: Text('See All', style: AppTextStyles.label.copyWith(color: AppColors.primary)),
+                                  child: Text(context.l10n.seeAll, style: AppTextStyles.label.copyWith(color: AppColors.primary)),
                                 ),
                               ],
                             ),
@@ -276,14 +277,14 @@ class KulinerDetail extends StatelessWidget {
                             return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                           }
                           if (snapshot.hasError) {
-                            return Center(child: Text('Failed to load reviews', style: AppTextStyles.bodyMedium));
+                            return Center(child: Text(context.l10n.failedToLoadReviews, style: AppTextStyles.bodyMedium));
                           }
                           if (!snapshot.hasData || snapshot.data!.isEmpty) {
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 20),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(color: AppColors.shimmer2, borderRadius: BorderRadius.circular(12)),
-                              child: Center(child: Text('No reviews yet.', style: AppTextStyles.bodyMedium)),
+                              child: Center(child: Text(context.l10n.noReviewsYet, style: AppTextStyles.bodyMedium)),
                             );
                           }
 
@@ -331,7 +332,7 @@ class KulinerDetail extends StatelessWidget {
           ],
         ),
         child: AppPrimaryButton(
-          label: 'Continue to Payment',
+          label: context.l10n.continueToPayment,
           icon: Icons.shopping_bag_outlined,
           onTap: () {
             Navigator.push(
@@ -361,7 +362,7 @@ class KulinerDetail extends StatelessWidget {
 
         final userData = userSnapshot.data?.data() as Map<String, dynamic>? ?? {};
         final profilePicUrl = userData['profilephoto'] ?? '';
-        final username = userData['username'] ?? 'Traveler';
+        final username = userData['username'] ?? context.l10n.traveler;
 
         return Container(
           width: 280,

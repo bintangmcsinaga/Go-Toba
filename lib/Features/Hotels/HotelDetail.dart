@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:go_toba/Features/Hotels/HotelReview.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart'; // Menggunakan style.dart
 import 'HotelBooking.dart';
 import 'HotelModel.dart';
@@ -244,7 +245,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Main Facilities',
+                            context.l10n.mainFacilities,
                             style: AppTextStyles.headingMedium,
                           ),
                           const SizedBox(height: 12),
@@ -275,7 +276,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Latest Reviews',
+                                context.l10n.latestReviews,
                                 style: AppTextStyles.headingMedium,
                               ),
                               TextButton(
@@ -287,7 +288,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                               hotelId: widget.hotel.id)));
                                 },
                                 child: Text(
-                                  'See All',
+                                  context.l10n.seeAll,
                                   style: AppTextStyles.label.copyWith(
                                       color: AppColors.primary, 
                                       fontWeight: FontWeight.bold),
@@ -314,7 +315,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Center(
-                                    child: Text('No reviews for this hotel yet',
+                                    child: Text(context.l10n.noReviewsForHotelYet,
                                         style: AppTextStyles.bodyMedium),
                                   ),
                                 );
@@ -353,7 +354,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Room Options',
+                            context.l10n.roomOptions,
                             style: AppTextStyles.headingMedium,
                           ),
                           const SizedBox(height: 16),
@@ -368,7 +369,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                   !snapshot.hasData ||
                                   snapshot.data!.isEmpty) {
                                 return Center(
-                                    child: Text('No rooms available', 
+                                    child: Text(context.l10n.noRoomsAvailable, 
                                     style: AppTextStyles.bodyMedium));
                               } else {
                                 return Column(
@@ -432,7 +433,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
         
         final userData = userSnapshot.data?.data() as Map<String, dynamic>? ?? {};
         final profilePicUrl = userData['profilephoto'] ?? '';
-        final username = userData['username'] ?? 'Traveler';
+        final username = userData['username'] ?? context.l10n.traveler;
 
         return Container(
           width: 280,
@@ -541,7 +542,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        room.available ? 'Available' : 'Full',
+                        room.available ? context.l10n.available : context.l10n.full,
                         style: AppTextStyles.label.copyWith(
                           color: room.available ? AppColors.success : AppColors.error,
                         ),
@@ -551,7 +552,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Facilities: ${room.facilities.join(', ')}',
+                  '${context.l10n.facilities}: ${room.facilities.join(', ')}',
                   style: AppTextStyles.bodyMedium,
                 ),
                 const SizedBox(height: 20),
@@ -565,7 +566,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Starting from',
+                          context.l10n.startingFrom,
                           style: AppTextStyles.caption,
                         ),
                         Text(
@@ -578,7 +579,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                     // Menggunakan tombol bawaan style.dart dengan Expanded
                     Expanded(
                       child: AppPrimaryButton(
-                        label: 'Book',
+                        label: context.l10n.book,
                         onTap: room.available
                             ? () {
                                 Navigator.push(

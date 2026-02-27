@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:go_toba/History/HistoryDetail.dart';
 import 'package:go_toba/History/HistoryModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart';
 
@@ -50,7 +51,7 @@ class _HistoryPageState extends State<HistoryPage> {
               .doc(doc.id)
               .delete();
           Fluttertoast.showToast(
-            msg: 'Deadline missed. Booking cancelled.',
+            msg: context.l10n.deadlineMissedCancelled,
             gravity: ToastGravity.TOP,
             backgroundColor: AppColors.error,
             textColor: Colors.white,
@@ -114,7 +115,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                     size: 18),
                               ),
                               const SizedBox(width: 10),
-                              Text('Waiting for Payment',
+                              Text(context.l10n.waitingForPayment,
                                   style: AppTextStyles.headingSmall
                                       .copyWith(color: AppColors.error)),
                             ],
@@ -150,7 +151,7 @@ class _HistoryPageState extends State<HistoryPage> {
                         ('Ship', 'Ship'),
                       ])
                         _FilterChip(
-                          label: type.$2,
+                          label: _filterLabel(context, type.$2),
                           selected: selectedType == type.$1,
                           onTap: () => setState(() => selectedType = type.$1),
                         ),
@@ -183,7 +184,7 @@ class _HistoryPageState extends State<HistoryPage> {
               if (snapshot.hasError) {
                 return SliverFillRemaining(
                   child: Center(
-                      child: Text('Error: ${snapshot.error}',
+                      child: Text('${context.l10n.error}: ${snapshot.error}',
                           style: AppTextStyles.bodyMedium)),
                 );
               }
@@ -242,11 +243,11 @@ class _EmptyState extends StatelessWidget {
       children: [
         Icon(Icons.receipt_long_rounded, size: 64, color: AppColors.divider),
         const SizedBox(height: 16),
-        Text('No history yet',
+        Text(context.l10n.noHistoryYet,
           style: AppTextStyles.headingSmall
             .copyWith(color: AppColors.textSecondary)),
         const SizedBox(height: 4),
-        Text('Your first booking will appear here',
+        Text(context.l10n.firstBookingWillAppear,
           style: AppTextStyles.bodyMedium),
       ],
     );
@@ -323,7 +324,7 @@ class _PendingBookingTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_typeTitle(historyItem),
+                  Text(_typeTitle(context, historyItem),
                       style: AppTextStyles.bodyMedium.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600)),
@@ -333,7 +334,7 @@ class _PendingBookingTile extends StatelessWidget {
                 ],
               ),
             ),
-            Text('Pay',
+            Text(context.l10n.pay,
               style: AppTextStyles.label.copyWith(color: AppColors.error)),
             const SizedBox(width: 4),
             const Icon(Icons.chevron_right_rounded,
@@ -395,13 +396,13 @@ class HistoryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_typeTitle(historyItem),
+                    Text(_typeTitle(context, historyItem),
                         style:
                             AppTextStyles.headingSmall.copyWith(fontSize: 14),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
-                    Text(_typeSubtitle(historyItem),
+                    Text(_typeSubtitle(context, historyItem),
                         style: AppTextStyles.bodySmall,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis),
@@ -430,7 +431,7 @@ class HistoryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Text(
-                      isPaid ? 'Paid' : 'Pending',
+                      isPaid ? context.l10n.paid : context.l10n.pending,
                       style: AppTextStyles.caption.copyWith(
                         color: isPaid ? AppColors.success : AppColors.error,
                         fontWeight: FontWeight.bold,
@@ -464,7 +465,7 @@ IconData _typeIcon(String type) {
   }
 }
 
-String _typeTitle(HistoryItem h) {
+String _typeTitle(BuildContext context, HistoryItem h) {
   switch (h.historyType) {
     case 'hotel':
       return h.hotelName;
@@ -475,11 +476,11 @@ String _typeTitle(HistoryItem h) {
     case 'Ship':
       return '${h.origin} → ${h.destination}';
     default:
-      return 'Unknown';
+      return context.l10n.unknown;
   }
 }
 
-String _typeSubtitle(HistoryItem h) {
+String _typeSubtitle(BuildContext context, HistoryItem h) {
   switch (h.historyType) {
     case 'hotel':
       return h.roomType;
@@ -490,5 +491,22 @@ String _typeSubtitle(HistoryItem h) {
       return '${h.departTime}  ${h.departDate}\n${h.origin} → ${h.destination}';
     default:
       return '-';
+  }
+}
+
+String _filterLabel(BuildContext context, String label) {
+  switch (label) {
+    case 'All':
+      return context.l10n.all;
+    case 'Hotel':
+      return context.l10n.hotels;
+    case 'Culinary':
+      return context.l10n.culinary;
+    case 'Bus':
+      return context.l10n.bus;
+    case 'Ship':
+      return context.l10n.ships;
+    default:
+      return label;
   }
 }

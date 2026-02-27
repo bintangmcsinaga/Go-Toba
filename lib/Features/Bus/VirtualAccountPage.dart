@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_toba/MainPage.dart';
+import 'package:go_toba/l10n/l10n.dart';
 
 class VirtualAccountPage extends StatelessWidget {
   const VirtualAccountPage({super.key, required this.virtualAccountNumber});
@@ -25,7 +26,7 @@ class VirtualAccountPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Your Virtual Account Number is:',
+                'Virtual Account Number',
                 style: TextStyle(
                   fontSize: fontSizeTitle,
                   fontWeight: FontWeight.bold,
@@ -54,7 +55,7 @@ class VirtualAccountPage extends StatelessWidget {
                   minimumSize: Size(buttonWidth, 48),
                 ),
                 child: Text(
-                  "Return Home",
+                  "Back to Home",
                   style: TextStyle(fontSize: screenWidth * 0.04),
                 ),
               ),

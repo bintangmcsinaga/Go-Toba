@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:uuid/uuid.dart';
 import 'package:go_toba/Features/Moments/StoryList.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart';
 
@@ -29,7 +30,7 @@ class _StoryState extends State<Story> {
 
     if (caption.isEmpty && images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('At least fill the caption')),
+        SnackBar(content: Text(context.l10n.fillCaptionOrImage)),
       );
       return;
     }
@@ -124,9 +125,9 @@ class _StoryState extends State<Story> {
         flexibleSpace: Container(decoration: appBarGradient()),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Moments',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          context.l10n.moments,
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -160,7 +161,7 @@ class _StoryState extends State<Story> {
                           minLines: 3,
                           style: AppTextStyles.bodyLarge,
                           decoration: AppDecorations.inputDecoration(
-                            'Tell us your vacation...',
+                            context.l10n.tellVacationStory,
                             icon: Icons.edit_note_rounded,
                           ),
                         ),
@@ -176,7 +177,7 @@ class _StoryState extends State<Story> {
                           side: const BorderSide(color: AppColors.primary),
                         ),
                         icon: const Icon(Icons.collections_outlined, size: 20),
-                        label: const Text('Gallery'),
+                        label: Text(context.l10n.gallery),
                       ),
                       const SizedBox(width: 8),
                       OutlinedButton.icon(
@@ -185,7 +186,7 @@ class _StoryState extends State<Story> {
                           side: const BorderSide(color: AppColors.primary),
                         ),
                         icon: const Icon(Icons.photo_camera_outlined, size: 20),
-                        label: const Text('Camera'),
+                        label: Text(context.l10n.camera),
                       ),
                     ],
                   ),
@@ -240,7 +241,7 @@ class _StoryState extends State<Story> {
                   ],
                   const SizedBox(height: 14),
                   AppPrimaryButton(
-                    label: 'Share Story',
+                    label: context.l10n.shareStory,
                     isLoading: uploading,
                     icon: Icons.send_rounded,
                     onTap: uploading ? null : () => uploadStory(context),
@@ -249,7 +250,7 @@ class _StoryState extends State<Story> {
               ),
             ),
             const SizedBox(height: 14),
-            Text('Latest Moments', style: AppTextStyles.headingSmall),
+            Text(context.l10n.latestMoments, style: AppTextStyles.headingSmall),
             const SizedBox(height: 6),
             const StoryList(),
           ],

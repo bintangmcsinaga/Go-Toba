@@ -18,6 +18,7 @@ import 'package:go_toba/Features/Vacations/VacationsModel.dart';
 import 'package:go_toba/Home/CulinaryRecomendation.dart';
 import 'package:go_toba/Home/DestinationRecomendation.dart';
 import 'package:go_toba/Home/HotelRecomendation.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart';
 import 'package:go_toba/main.dart';
@@ -36,32 +37,32 @@ class _HomePageState extends State<HomePage>
     {
       'icon': Icons.hotel_rounded,
       'name': 'Hotels',
-      'color': Color(0xFF42A5F5), // Blue
+      'color': const Color(0xFF42A5F5),
     },
     {
       'icon': Icons.directions_boat_filled_rounded,
       'name': 'Ships',
-      'color': Color(0xFF26C6DA), // Cyan
+      'color': const Color(0xFF26C6DA),
     },
     {
       'icon': Icons.park_rounded,
       'name': 'Vacations',
-      'color': Color(0xFF66BB6A), // Green
+      'color': const Color(0xFF66BB6A),
     },
     {
       'icon': Icons.camera_alt_rounded,
       'name': 'Moments',
-      'color': Color(0xFFFFA726), // Orange
+      'color': const Color(0xFFFFA726),
     },
     {
       'icon': Icons.restaurant_menu_rounded,
       'name': 'Culinary',
-      'color': Color(0xFFAB47BC), // Purple
+      'color': const Color(0xFFAB47BC),
     },
     {
       'icon': Icons.directions_bus_filled_rounded,
       'name': 'Bus',
-      'color': Color(0xFFEC407A), // Pink
+      'color': const Color(0xFFEC407A),
     },
   ];
 
@@ -203,6 +204,26 @@ class _HomePageState extends State<HomePage>
     }
   }
 
+  String _featureLabel(BuildContext context, String featureName) {
+    final l10n = context.l10n;
+    switch (featureName) {
+      case 'Hotels':
+        return l10n.hotels;
+      case 'Ships':
+        return l10n.ships;
+      case 'Vacations':
+        return l10n.vacations;
+      case 'Moments':
+        return l10n.moments;
+      case 'Culinary':
+        return l10n.culinary;
+      case 'Bus':
+        return l10n.bus;
+      default:
+        return featureName;
+    }
+  }
+
   final List<String> imgList = [
     'assets/homeslider/slider1.png',
     'assets/homeslider/slider2.png',
@@ -212,6 +233,7 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final user = context.read<UserProvider>();
+    final l10n = context.l10n;
     final screenSize = MediaQuery.of(context).size;
     final bool isTablet = screenSize.width >= 768;
     final double horizontalPadding = isTablet ? 24 : 16;
@@ -279,15 +301,15 @@ class _HomePageState extends State<HomePage>
                             color: Colors.white.withValues(alpha: 0.4),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.location_on_rounded,
+                            const Icon(Icons.location_on_rounded,
                                 color: Colors.white, size: 16),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Text(
-                              'Lake Toba',
-                              style: TextStyle(
+                              l10n.lakeToba,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -309,7 +331,11 @@ class _HomePageState extends State<HomePage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Welcome, ${user.username.isNotEmpty ? user.username : 'Traveler'}",
+                        l10n.welcomeUser(
+                          user.username.isNotEmpty
+                              ? user.username
+                              : l10n.traveler,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodyLarge.copyWith(
@@ -320,7 +346,7 @@ class _HomePageState extends State<HomePage>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "Explore Lake Toba\nToday",
+                        l10n.exploreLakeTobaToday,
                         style: AppTextStyles.headingLarge.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -372,7 +398,13 @@ class _HomePageState extends State<HomePage>
                       ),
                       itemBuilder: (context, index) {
                         return FeatureItem(
-                          feature: features[index],
+                          feature: {
+                            ...features[index],
+                            'name': _featureLabel(
+                              context,
+                              features[index]['name'] as String,
+                            ),
+                          },
                           onTap: () => _onFeatureTap(features[index]['name']),
                         );
                       },
@@ -395,7 +427,7 @@ class _HomePageState extends State<HomePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SectionHeader(
-                    title: "Recommended Hotels",
+                    title: l10n.recommendedHotels,
                     onSeeAll: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -410,7 +442,7 @@ class _HomePageState extends State<HomePage>
                           ? hotel.imageUrls[0]
                           : 'https://via.placeholder.com/150',
                       title: hotel.name,
-                      subtitle: "Hotel",
+                      subtitle: l10n.hotel,
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -421,7 +453,7 @@ class _HomePageState extends State<HomePage>
                   const SizedBox(height: 24),
                   
                   SectionHeader(
-                    title: "Top Destinations",
+                    title: l10n.topDestinations,
                     onSeeAll: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -434,7 +466,7 @@ class _HomePageState extends State<HomePage>
                     (dest) => RecommendationCard(
                       imageUrl: dest.imageUrl,
                       title: dest.name,
-                      subtitle: "Destination",
+                      subtitle: l10n.destination,
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -445,7 +477,7 @@ class _HomePageState extends State<HomePage>
                   const SizedBox(height: 24),
                   
                   SectionHeader(
-                    title: "Culinary Delights",
+                    title: l10n.culinaryDelights,
                     onSeeAll: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -458,7 +490,7 @@ class _HomePageState extends State<HomePage>
                     (food) => RecommendationCard(
                       imageUrl: food.imageUrl,
                       title: food.name,
-                      subtitle: "Culinary",
+                      subtitle: l10n.culinary,
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -483,13 +515,13 @@ class _HomePageState extends State<HomePage>
       future: future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildSkeletonLoading(); // Diganti dengan Skeleton Loading
+          return _buildSkeletonLoading(); 
         } else if (snapshot.hasError) {
           return SizedBox(
             height: 220,
             child: Center(
               child: Text(
-                'Failed to load data.',
+                context.l10n.failedToLoadData,
                 style: TextStyle(color: Colors.grey[600]),
               ),
             ),
@@ -499,7 +531,7 @@ class _HomePageState extends State<HomePage>
             height: 220,
             child: Center(
               child: Text(
-                'No recommendations yet.',
+                context.l10n.noRecommendationsYet,
                 style: TextStyle(color: Colors.grey[400]),
               ),
             ),

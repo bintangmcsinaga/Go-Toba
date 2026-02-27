@@ -6,6 +6,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:go_toba/History/HistoryModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart'; // Import design system
 
@@ -47,12 +48,12 @@ class _HistoryDetailState extends State<HistoryDetail> {
         context: context,
         builder: (context) => AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text("Cancel Booking?", style: AppTextStyles.headingMedium),
-              content: Text("Are you sure you want to cancel this booking?", style: AppTextStyles.bodyMedium),
+              title: Text(context.l10n.cancelBookingTitle, style: AppTextStyles.headingMedium),
+              content: Text(context.l10n.cancelBookingConfirm, style: AppTextStyles.bodyMedium),
               actions: [
                 TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text("No", style: AppTextStyles.label.copyWith(color: AppColors.textSecondary))),
+                    child: Text(context.l10n.no, style: AppTextStyles.label.copyWith(color: AppColors.textSecondary))),
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.error,
@@ -62,7 +63,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                       Navigator.pop(context);
                       _handleDeadlinePassed();
                     },
-                    child: Text("Yes, Cancel", style: AppTextStyles.label.copyWith(color: Colors.white)))
+                    child: Text(context.l10n.yesCancel, style: AppTextStyles.label.copyWith(color: Colors.white)))
               ],
             ));
   }
@@ -94,7 +95,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
           .delete();
 
       Fluttertoast.showToast(
-        msg: 'Payment time expired. Booking cancelled.',
+        msg: context.l10n.paymentExpiredCancelled,
         gravity: ToastGravity.TOP,
         backgroundColor: AppColors.error,
         textColor: Colors.white,
@@ -141,14 +142,14 @@ class _HistoryDetailState extends State<HistoryDetail> {
           });
         }
         Fluttertoast.showToast(
-          msg: 'Review saved successfully',
+          msg: context.l10n.reviewSavedSuccessfully,
           gravity: ToastGravity.TOP,
           backgroundColor: AppColors.success,
           textColor: Colors.white,
         );
       }).catchError((error) {
         Fluttertoast.showToast(
-          msg: 'Failed to save review',
+          msg: context.l10n.failedToSaveReview,
           gravity: ToastGravity.TOP,
           backgroundColor: AppColors.error,
           textColor: Colors.white,
@@ -204,7 +205,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isPendingPayment ? 'Waiting for Payment' : 'Transaction Successful',
+                          isPendingPayment ? context.l10n.waitingForPayment : context.l10n.transactionSuccessful,
                           style: AppTextStyles.headingSmall.copyWith(
                             color: isPendingPayment ? AppColors.error : AppColors.success,
                           ),
@@ -212,7 +213,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                         if (isPendingPayment) ...[
                           const SizedBox(height: 2),
                           Text(
-                            'Complete in ${_formatDuration(_timeLeft)}',
+                            '${context.l10n.completeIn} ${_formatDuration(_timeLeft)}',
                             style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
                           ),
                         ]
@@ -231,18 +232,18 @@ class _HistoryDetailState extends State<HistoryDetail> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Booking Details', style: AppTextStyles.headingMedium),
+                  Text(context.l10n.bookingDetails, style: AppTextStyles.headingMedium),
                   const SizedBox(height: 16),
                   
-                  _buildDetailRow('Transaction ID', widget.historyItem.id),
-                  _buildDetailRow('Transaction Date', widget.historyItem.date),
-                  _buildDetailRow('Payment Method', widget.historyItem.paymentMethod),
+                  _buildDetailRow(context.l10n.transactionId, widget.historyItem.id),
+                  _buildDetailRow(context.l10n.transactionDate, widget.historyItem.date),
+                  _buildDetailRow(context.l10n.paymentMethod, widget.historyItem.paymentMethod),
                   if (showVirtualAccount) ...[
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Divider(color: AppColors.divider),
                     ),
-                    Text('Virtual Account Number', style: AppTextStyles.label),
+                    Text(context.l10n.virtualAccountNumberLabel, style: AppTextStyles.label),
                     const SizedBox(height: 4),
                     Text(
                       widget.historyItem.virtualAccountNumber, 
@@ -257,19 +258,19 @@ class _HistoryDetailState extends State<HistoryDetail> {
 
                   // Detail Spesifik Tipe
                   if (widget.historyItem.historyType == 'hotel') ...[
-                    _buildDetailRow('Hotel Name', widget.historyItem.hotelName),
-                    _buildDetailRow('Room Type', widget.historyItem.roomType),
+                    _buildDetailRow(context.l10n.hotelName, widget.historyItem.hotelName),
+                    _buildDetailRow(context.l10n.roomType, widget.historyItem.roomType),
                   ],
                   if (widget.historyItem.historyType == 'kuliner') ...[
-                    _buildDetailRow('Culinary Name', widget.historyItem.kulinerName),
+                    _buildDetailRow(context.l10n.culinaryName, widget.historyItem.kulinerName),
                   ],
                   if (widget.historyItem.historyType == 'bus' || widget.historyItem.historyType == 'Ship') ...[
-                    _buildDetailRow('Transportation', widget.historyItem.transportName),
-                    _buildDetailRow('Departure Date', widget.historyItem.departDate),
-                    _buildDetailRow('Departure Time', widget.historyItem.departTime),
-                    _buildDetailRow('Origin', widget.historyItem.origin),
-                    _buildDetailRow('Destination', widget.historyItem.destination),
-                    _buildDetailRow('Total Passengers', '${widget.historyItem.totalpassanger} Persons'),
+                    _buildDetailRow(context.l10n.transportation, widget.historyItem.transportName),
+                    _buildDetailRow(context.l10n.departureDate, widget.historyItem.departDate),
+                    _buildDetailRow(context.l10n.departureTime, widget.historyItem.departTime),
+                    _buildDetailRow(context.l10n.origin, widget.historyItem.origin),
+                    _buildDetailRow(context.l10n.destination, widget.historyItem.destination),
+                    _buildDetailRow(context.l10n.totalPassengers, '${widget.historyItem.totalpassanger} ${context.l10n.people}'),
                   ],
 
                   const Padding(
@@ -281,7 +282,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total Payment', style: AppTextStyles.headingSmall),
+                      Text(context.l10n.totalPayment, style: AppTextStyles.headingSmall),
                       Text(
                         'Rp ${widget.historyItem.price}',
                         style: AppTextStyles.headingMedium.copyWith(color: AppColors.primary),
@@ -318,7 +319,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: Text("Cancel Booking", style: AppTextStyles.button.copyWith(color: AppColors.error)),
+                      child: Text(context.l10n.cancelBooking, style: AppTextStyles.button.copyWith(color: AppColors.error)),
                     )
                   : const SizedBox.shrink())
               : FutureBuilder<bool>(
@@ -329,7 +330,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                     }
                     final isReviewed = snapshot.data ?? false;
                     return AppPrimaryButton(
-                      label: isReviewed ? "Review Submitted" : "Give Review",
+                      label: isReviewed ? context.l10n.reviewSubmitted : context.l10n.giveReview,
                       icon: isReviewed ? Icons.check_circle_outline_rounded : Icons.star_border_rounded,
                       onTap: isReviewed ? null : () => _navigateToReviewPage(context, widget.historyItem),
                     );
@@ -364,7 +365,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
   }
 
   String _formatDuration(Duration duration) {
-    if (duration.isNegative) return 'Expired';
+    if (duration.isNegative) return context.l10n.expired;
     final hours = duration.inHours.toString().padLeft(2, '0');
     final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
     final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
@@ -379,7 +380,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Give Review', style: AppTextStyles.headingMedium),
+        title: Text(context.l10n.giveReview, style: AppTextStyles.headingMedium),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -408,7 +409,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
               controller: reviewController,
               maxLength: 150,
               style: AppTextStyles.bodyLarge,
-              decoration: AppDecorations.inputDecoration('Write your experience...'),
+              decoration: AppDecorations.inputDecoration(context.l10n.writeYourExperience),
               maxLines: 3,
             ),
           ],
@@ -420,7 +421,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
               Expanded(
                 child: TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Cancel', style: AppTextStyles.label),
+                  child: Text(context.l10n.cancel, style: AppTextStyles.label),
                 ),
               ),
               Expanded(
@@ -437,12 +438,12 @@ class _HistoryDetailState extends State<HistoryDetail> {
                       Navigator.of(context).pop();
                     } else {
                       Fluttertoast.showToast(
-                        msg: 'Please provide your rating and review.',
+                        msg: context.l10n.provideRatingAndReview,
                         backgroundColor: AppColors.error,
                       );
                     }
                   },
-                  child: Text('Save', style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14)),
+                  child: Text(context.l10n.save, style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14)),
                 ),
               ),
             ],

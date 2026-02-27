@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:go_toba/Features/Hotels/HotelDetail.dart';
 import 'package:go_toba/Features/Hotels/HotelModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart';
 
 class HotelRecommendationListPage extends StatefulWidget {
@@ -157,7 +158,7 @@ class _HotelRecommendationListPageState
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Hotel Recommendations',
+                context.l10n.hotelRecommendations,
                 style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
               ),
               centerTitle: true,
@@ -197,7 +198,7 @@ class _HotelRecommendationListPageState
                   },
                   style: AppTextStyles.bodyLarge,
                   decoration: InputDecoration(
-                    hintText: 'Search hotel name...',
+                    hintText: context.l10n.searchHotelName,
                     hintStyle: AppTextStyles.bodyMedium,
                     prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary),
                     suffixIcon: searchController.text.isNotEmpty
@@ -231,9 +232,9 @@ class _HotelRecommendationListPageState
                             children: [
                               Icon(Icons.search_off_rounded, size: 80, color: AppColors.divider),
                               const SizedBox(height: 16),
-                              Text('Hotel Not Found', style: AppTextStyles.headingSmall),
+                              Text(context.l10n.hotelNotFound, style: AppTextStyles.headingSmall),
                               const SizedBox(height: 8),
-                              Text('Try using a different search keyword.',
+                              Text(context.l10n.tryDifferentKeyword,
                                   style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
                             ],
                           ),

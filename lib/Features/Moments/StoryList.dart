@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_toba/Features/Moments/FullScreenImageView.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart';
 import 'package:share_plus/share_plus.dart';
@@ -14,19 +15,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class StoryList extends StatelessWidget {
   const StoryList({super.key});
 
-  String formatTimestamp(Timestamp timestamp) {
+  String formatTimestamp(BuildContext context, Timestamp timestamp) {
     DateTime now = DateTime.now();
     DateTime date = timestamp.toDate();
     Duration difference = now.difference(date);
 
     if (difference.inSeconds < 60) {
-      return '${difference.inSeconds} seconds ago';
+      return context.l10n.secondsAgo(difference.inSeconds);
     } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} minutes ago';
+      return context.l10n.minutesAgo(difference.inMinutes);
     } else if (difference.inHours < 24) {
-      return '${difference.inHours} hours ago';
+      return context.l10n.hoursAgo(difference.inHours);
     } else if (difference.inHours < 48) {
-      return 'Yesterday';
+      return context.l10n.yesterday;
     } else {
       return DateFormat('dd MMM yyyy').format(date);
     }
@@ -69,7 +70,7 @@ class StoryList extends StatelessWidget {
           imageFiles.add(XFile(file.path));
         } else {
           Fluttertoast.showToast(
-            msg: "Failed to download image: $url",
+            msg: context.l10n.failedToDownloadImage(url),
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
           );
@@ -80,12 +81,12 @@ class StoryList extends StatelessWidget {
       await SharePlus.instance.share(
         ShareParams(
           files: imageFiles,
-          text: 'Check out this story by $username: $caption',
+          text: context.l10n.storyShareText(username, caption),
         ),
       );
     } catch (e) {
       Fluttertoast.showToast(
-        msg: "Failed to share story: $e",
+        msg: context.l10n.failedToShareStory(e.toString()),
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
       );
@@ -112,7 +113,7 @@ class StoryList extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: AppDecorations.cardFlat,
             child: Text(
-              'No stories yet. Be the first to share your moment.',
+              context.l10n.noStoriesYet,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium,
             ),
@@ -141,7 +142,7 @@ class StoryList extends StatelessWidget {
 
                 var userData =
                     userSnapshot.data!.data() as Map<String, dynamic>;
-                String username = userData['username'] ?? 'Unknown';
+                String username = userData['username'] ?? context.l10n.unknown;
                 String profilePictureUrl = userData['profilephoto'] ?? '';
 
                 return Container(
@@ -164,7 +165,7 @@ class StoryList extends StatelessWidget {
                           ),
                           title: Text(username, style: AppTextStyles.headingSmall),
                           subtitle: Text(
-                            formatTimestamp(story['date']),
+                            formatTimestamp(context, story['date']),
                             style: AppTextStyles.caption,
                           ),
                           contentPadding: EdgeInsets.zero,
@@ -250,7 +251,7 @@ class StoryList extends StatelessWidget {
                                 toggleLike(context, story);
                               },
                             ),
-                            Text('${likes.length} likes', style: AppTextStyles.bodyMedium),
+                            Text(context.l10n.likesCount(likes.length), style: AppTextStyles.bodyMedium),
                             const SizedBox(width: 16.0),
                             IconButton(
                               icon: const Icon(Icons.share_outlined),

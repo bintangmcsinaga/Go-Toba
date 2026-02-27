@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_toba/Features/Ships/ShipDetail.dart';
 import 'package:go_toba/Features/Ships/ShipModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart';
 
 class ShipTicketOrderPage extends StatefulWidget {
@@ -163,7 +164,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
             backgroundColor: AppColors.primaryDark,
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text('Ship Tickets',
+              title: Text(context.l10n.shipTickets,
                   style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 16),
@@ -201,9 +202,9 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Choose Your Sailing Route', style: AppTextStyles.headingMedium),
+                        Text(context.l10n.chooseYourSailingRoute, style: AppTextStyles.headingMedium),
                         const SizedBox(height: 6),
-                        Text('Find the best Lake Toba ferry schedules for your trip.',
+                        Text(context.l10n.findShipSchedules,
                             style: AppTextStyles.bodyMedium),
                         const SizedBox(height: 24),
                         
@@ -213,7 +214,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                             Column(
                               children: [
                                 _buildDropdown(
-                                  label: 'Departure Port',
+                                  label: context.l10n.departurePort,
                                   icon: Icons.location_on_rounded,
                                   value: _selectedOrigin,
                                   items: _origins,
@@ -227,7 +228,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                                 ),
                                 const SizedBox(height: 16),
                                 _buildDropdown(
-                                  label: 'Destination Port',
+                                  label: context.l10n.destinationPort,
                                   icon: Icons.flag_rounded,
                                   value: _selectedDestination,
                                   items: _getAvailableDestinations(),
@@ -273,11 +274,11 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                       children: [
                         Row(
                           children: [
-                            Text('Available Schedules', style: AppTextStyles.headingSmall),
+                            Text(context.l10n.availableSchedules, style: AppTextStyles.headingSmall),
                             const SizedBox(width: 8),
                             if (!_isLoading)
                               AppChip(
-                                label: '${_filteredShipTickets.length} Routes', 
+                                label: '${_filteredShipTickets.length} ${context.l10n.routes}', 
                                 accent: false,
                               ),
                           ],
@@ -297,13 +298,13 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                                 Icon(Icons.search_off_rounded, size: 64, color: AppColors.textSecondary.withValues(alpha: 0.5)),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Oops! Route Not Found', 
+                                  context.l10n.routeNotFound, 
                                   style: AppTextStyles.headingSmall,
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'No ship schedules are currently available from ${(_selectedOrigin!)} to ${(_selectedDestination!)}.', 
+                                  context.l10n.noShipSchedulesFromTo(_selectedOrigin!, _selectedDestination!),
                                   style: AppTextStyles.bodyMedium,
                                   textAlign: TextAlign.center,
                                 ),
@@ -353,7 +354,10 @@ class _ShipTicketCard extends StatelessWidget {
 
   String _portLabel(String portName) {
     if (portName.startsWith('Pelabuhan ')) {
-      return '${portName.replaceFirst('Pelabuhan ', '')} Port';
+      return portName.replaceFirst('Pelabuhan ', '');
+    }
+    if (portName.startsWith('Port ')) {
+      return portName.replaceFirst('Port ', '');
     }
     return portName;
   }
@@ -390,8 +394,8 @@ class _ShipTicketCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Regular Ferry', style: AppTextStyles.label.copyWith(color: Colors.white70)),
-                      Text('Passenger Ticket', style: AppTextStyles.headingSmall.copyWith(color: Colors.white)),
+                      Text(context.l10n.regularFerry, style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text(context.l10n.passengerTicket, style: AppTextStyles.headingSmall.copyWith(color: Colors.white)),
                     ],
                   ),
                 ),
@@ -399,7 +403,7 @@ class _ShipTicketCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('Price', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text(context.l10n.price, style: AppTextStyles.label.copyWith(color: Colors.white70)),
                       Text(
                         'Rp ${ticket.price}',
                         style: AppTextStyles.headingMedium.copyWith(color: AppColors.accentLight),
@@ -469,7 +473,7 @@ class _ShipTicketCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('FROM', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          Text(context.l10n.from.toUpperCase(), style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                           const SizedBox(height: 4),
                           // Mencegah overflow dengan membatasi baris
                           Text(
@@ -495,7 +499,7 @@ class _ShipTicketCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('DESTINATION', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          Text(context.l10n.to.toUpperCase(), style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                           const SizedBox(height: 4),
                           // Mencegah overflow
                           Text(
@@ -517,7 +521,7 @@ class _ShipTicketCard extends StatelessWidget {
                 ),
                 
                 if (ticket.departTime.isNotEmpty) ...[
-                  Text('Departure Schedule', style: AppTextStyles.label),
+                  Text(context.l10n.departureSchedule, style: AppTextStyles.label),
                   const SizedBox(height: 10),
                   // Mencegah overflow dari text waktu yang panjang menggunakan Wrap
                   Wrap(
@@ -549,7 +553,7 @@ class _ShipTicketCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: AppPrimaryButton(
-                    label: 'Book Ticket',
+                    label: context.l10n.bookTicket,
                     icon: Icons.confirmation_number_outlined,
                     onTap: () => Navigator.push(
                       context,

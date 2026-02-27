@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_toba/Features/Hotels/HotelModel.dart';
 import 'package:go_toba/Features/Hotels/VirtualAccountPage.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart'; // Import style.dart
 
@@ -86,7 +87,7 @@ class _BookingPageState extends State<BookingPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Check-out date must be after Check-in'),
+            content: Text(context.l10n.checkOutAfterCheckIn),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -101,14 +102,14 @@ class _BookingPageState extends State<BookingPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Confirm Booking', style: AppTextStyles.headingMedium),
+        title: Text(context.l10n.confirmBooking, style: AppTextStyles.headingMedium),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Hotel: ${widget.hotel.name}', style: AppTextStyles.bodyMedium),
+            Text('${context.l10n.hotel}: ${widget.hotel.name}', style: AppTextStyles.bodyMedium),
             const SizedBox(height: 4),
-            Text('Room: ${widget.room.type}', style: AppTextStyles.bodyMedium),
+            Text('${context.l10n.room}: ${widget.room.type}', style: AppTextStyles.bodyMedium),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
@@ -119,32 +120,32 @@ class _BookingPageState extends State<BookingPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Check-in: ${DateFormat('dd MMM yyyy').format(_checkInDate)}', style: AppTextStyles.bodySmall),
+                  Text('${context.l10n.checkIn}: ${DateFormat('dd MMM yyyy').format(_checkInDate)}', style: AppTextStyles.bodySmall),
                   const SizedBox(height: 4),
-                  Text('Check-out: ${DateFormat('dd MMM yyyy').format(_checkOutDate)}', style: AppTextStyles.bodySmall),
+                  Text('${context.l10n.checkOut}: ${DateFormat('dd MMM yyyy').format(_checkOutDate)}', style: AppTextStyles.bodySmall),
                 ],
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              'Total: ${NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0).format(price)}',
+              '${context.l10n.total}: ${NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0).format(price)}',
               style: AppTextStyles.headingSmall.copyWith(color: AppColors.primary),
             ),
             const SizedBox(height: 12),
-            Text('Method: $_selectedPaymentMethod', style: AppTextStyles.bodyMedium),
+            Text('${context.l10n.method}: ${_paymentMethodLabel(context, _selectedPaymentMethod)}', style: AppTextStyles.bodyMedium),
             if (_selectedPaymentMethod == 'Credit Card')
-              Text('Card: ${_creditCardNumber.isNotEmpty ? _creditCardNumber : "-"}', style: AppTextStyles.bodySmall),
+              Text('${context.l10n.card}: ${_creditCardNumber.isNotEmpty ? _creditCardNumber : "-"}', style: AppTextStyles.bodySmall),
             if (_selectedPaymentMethod == 'Bank Transfer')
-              Text('Bank: $_selectedBank', style: AppTextStyles.bodySmall),
+              Text('${context.l10n.selectBank}: $_selectedBank', style: AppTextStyles.bodySmall),
             if (_selectedPaymentMethod == 'E-Wallet')
               Text('E-Wallet: $_selectedEwallet', style: AppTextStyles.bodySmall),
             const SizedBox(height: 16),
-            Text('Continue booking?', style: AppTextStyles.bodyLarge),
+            Text(context.l10n.continueBooking, style: AppTextStyles.bodyLarge),
           ],
         ),
         actions: <Widget>[
           TextButton(
-            child: Text('Cancel', style: AppTextStyles.button.copyWith(color: AppColors.textSecondary)),
+            child: Text(context.l10n.cancel, style: AppTextStyles.button.copyWith(color: AppColors.textSecondary)),
             onPressed: () => Navigator.of(context).pop(),
           ),
           ElevatedButton(
@@ -152,7 +153,7 @@ class _BookingPageState extends State<BookingPage> {
               backgroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: Text('Confirm', style: AppTextStyles.button.copyWith(color: Colors.white)),
+            child: Text(context.l10n.confirm, style: AppTextStyles.button.copyWith(color: Colors.white)),
             onPressed: () {
               Navigator.of(context).pop();
               _prosesBooking();
@@ -209,7 +210,7 @@ class _BookingPageState extends State<BookingPage> {
               const SizedBox(height: 16),
               DefaultTextStyle(
                 style: AppTextStyles.label,
-                child: const Text('Processing your order...'),
+                child: Text(context.l10n.processingOrder),
               ),
             ],
           ),
@@ -288,10 +289,10 @@ class _BookingPageState extends State<BookingPage> {
                   },
                   child: Column(
                     children: [
-                      Text('Booking Successful!', style: AppTextStyles.headingMedium),
+                      Text(context.l10n.bookingSuccessful, style: AppTextStyles.headingMedium),
                       const SizedBox(height: 8),
                       Text(
-                        'Thank you! Your order is being processed.',
+                        context.l10n.thankYouBookingProcessed,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodyMedium,
                       ),
@@ -308,7 +309,7 @@ class _BookingPageState extends State<BookingPage> {
                         ),
                         child: Column(
                           children: [
-                            Text('No. Virtual Account', style: AppTextStyles.label),
+                            Text(context.l10n.virtualAccountNumberLabel, style: AppTextStyles.label),
                             const SizedBox(height: 8),
                             Text(
                               virtualAccountNumber,
@@ -325,7 +326,7 @@ class _BookingPageState extends State<BookingPage> {
                       SizedBox(
                         width: double.infinity,
                         child: AppPrimaryButton(
-                          label: 'Complete Payment',
+                          label: context.l10n.completePayment,
                           onTap: () {
                             Navigator.pushReplacement(
                               context,
@@ -347,11 +348,11 @@ class _BookingPageState extends State<BookingPage> {
         );
       }).catchError((error) {
         Navigator.pop(context); // Tutup loading
-        _showErrorDialog('Error', 'Failed to add history: $error');
+        _showErrorDialog(context.l10n.error, context.l10n.failedToAddHistory(error.toString()));
       });
     }).catchError((error) {
       Navigator.pop(context); // Tutup loading
-      _showErrorDialog('Error', 'The system failed to process your booking: $error');
+      _showErrorDialog(context.l10n.error, context.l10n.failedToProcessBooking(error.toString()));
     });
   }
 
@@ -369,7 +370,7 @@ class _BookingPageState extends State<BookingPage> {
         content: Text(content, style: AppTextStyles.bodyMedium),
         actions: <Widget>[
           TextButton(
-            child: Text('OK', style: AppTextStyles.button.copyWith(color: AppColors.primary)),
+            child: Text(context.l10n.ok, style: AppTextStyles.button.copyWith(color: AppColors.primary)),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -415,7 +416,7 @@ class _BookingPageState extends State<BookingPage> {
         elevation: 0,
         flexibleSpace: Container(decoration: appBarGradient()),
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Text('Order Details', style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
+        title: Text(context.l10n.orderDetails, style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -449,7 +450,7 @@ class _BookingPageState extends State<BookingPage> {
                           children: [
                             Expanded(child: Text(widget.room.type, style: AppTextStyles.headingMedium)),
                             AppChip(
-                              label: widget.room.available ? 'Available' : 'Full',
+                              label: widget.room.available ? context.l10n.available : context.l10n.full,
                               accent: !widget.room.available,
                             ),
                           ],
@@ -461,7 +462,7 @@ class _BookingPageState extends State<BookingPage> {
                           children: [
                             const Icon(Icons.sell_outlined, size: 18, color: AppColors.textSecondary),
                             const SizedBox(width: 8),
-                            Text('Rp ${currencyFormatter.format(widget.room.pricePerNight).split('Rp')[1]} / night', 
+                            Text('Rp ${currencyFormatter.format(widget.room.pricePerNight).split('Rp')[1]} / ${context.l10n.night}', 
                               style: AppTextStyles.bodyMedium),
                           ],
                         ),
@@ -485,31 +486,31 @@ class _BookingPageState extends State<BookingPage> {
             const SizedBox(height: 24),
 
             // --- TANGGAL MENGINAP ---
-            Text('Stay Dates', style: AppTextStyles.headingSmall),
+            Text(context.l10n.stayDates, style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildDateBox('Check-in', _checkInDate, () => _selectDate(context, _selectCheckInDate, _checkInDate)),
+                _buildDateBox(context.l10n.checkIn, _checkInDate, () => _selectDate(context, _selectCheckInDate, _checkInDate)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Icon(Icons.arrow_forward_rounded, color: AppColors.primaryLight),
                 ),
-                _buildDateBox('Check-out', _checkOutDate, () => _selectDate(context, _selectCheckOutDate, _checkOutDate)),
+                _buildDateBox(context.l10n.checkOut, _checkOutDate, () => _selectDate(context, _selectCheckOutDate, _checkOutDate)),
               ],
             ),
             const SizedBox(height: 24),
 
             // --- METODE PEMBAYARAN ---
-            Text('Payment Method', style: AppTextStyles.headingSmall),
+            Text(context.l10n.paymentMethod, style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _selectedPaymentMethod,
-              decoration: AppDecorations.inputDecoration('Select Payment Method', icon: Icons.payment_rounded),
+              decoration: AppDecorations.inputDecoration(context.l10n.selectPaymentMethod, icon: Icons.payment_rounded),
               icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
               items: <String>['Bank Transfer', 'Credit Card', 'E-Wallet'].map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value, style: AppTextStyles.bodyLarge),
+                  child: Text(_paymentMethodLabel(context, value), style: AppTextStyles.bodyLarge),
                 );
               }).toList(),
               onChanged: (value) {
@@ -526,7 +527,7 @@ class _BookingPageState extends State<BookingPage> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _selectedBank,
-                decoration: AppDecorations.inputDecoration('Select Bank', icon: Icons.account_balance_rounded),
+                decoration: AppDecorations.inputDecoration(context.l10n.selectBank, icon: Icons.account_balance_rounded),
                 icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                 items: <String>['BCA', 'BRI', 'BNI', 'Mandiri'].map((String bank) {
                   return DropdownMenuItem<String>(
@@ -542,7 +543,7 @@ class _BookingPageState extends State<BookingPage> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _selectedEwallet,
-                decoration: AppDecorations.inputDecoration('Select E-Wallet', icon: Icons.account_balance_wallet_rounded),
+                decoration: AppDecorations.inputDecoration(context.l10n.selectEWallet, icon: Icons.account_balance_wallet_rounded),
                 icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                 items: <String>['DANA', 'OVO', 'Doku', 'Gopay'].map((String eWallet) {
                   return DropdownMenuItem<String>(
@@ -559,7 +560,7 @@ class _BookingPageState extends State<BookingPage> {
               TextFormField(
                 keyboardType: TextInputType.number,
                 style: AppTextStyles.bodyLarge,
-                decoration: AppDecorations.inputDecoration('Credit Card Number', icon: Icons.credit_card_rounded),
+                decoration: AppDecorations.inputDecoration(context.l10n.creditCardNumber, icon: Icons.credit_card_rounded),
                 onChanged: (value) => setState(() => _creditCardNumber = value),
               ),
             ],
@@ -590,7 +591,7 @@ class _BookingPageState extends State<BookingPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Total Price', style: AppTextStyles.caption),
+                  Text(context.l10n.totalPrice, style: AppTextStyles.caption),
                   const SizedBox(height: 2),
                   Text(
                     currencyFormatter.format(price),
@@ -602,7 +603,7 @@ class _BookingPageState extends State<BookingPage> {
             const SizedBox(width: 16),
             Expanded(
               child: AppPrimaryButton(
-                label: 'Confirm',
+                label: context.l10n.confirm,
                 icon: Icons.check_circle_outline_rounded,
                 onTap: _confirmBooking,
               ),
@@ -611,5 +612,12 @@ class _BookingPageState extends State<BookingPage> {
         ),
       ),
     );
+  }
+
+  String _paymentMethodLabel(BuildContext context, String value) {
+    if (value == 'Bank Transfer') return context.l10n.bankTransfer;
+    if (value == 'Credit Card') return context.l10n.creditCard;
+    if (value == 'E-Wallet') return 'E-Wallet';
+    return value;
   }
 }

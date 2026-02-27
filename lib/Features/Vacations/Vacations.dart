@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_toba/Features/Vacations/VacationsDetail.dart';
 import 'package:go_toba/Features/Vacations/VacationsModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart';
 
@@ -18,15 +19,14 @@ class _VacationsState extends State<Vacations> {
   String filterCategory = 'All';
   String filterTag = 'All';
 
-  // Daftar filter agar lebih mudah dikelola dan ditambahkan
-  final List<Map<String, String>> _filters = [
-    {'name': 'All', 'tag': 'All'},
-    {'name': 'Lake', 'tag': 'pemandangandanau'},
-    {'name': 'Waterfall', 'tag': 'airterjun'},
-    {'name': 'Hill', 'tag': 'bukit'},
-    {'name': 'Culture', 'tag': 'budaya'},
-    {'name': 'Beach', 'tag': 'pantai'},
-  ];
+  List<Map<String, String>> _filters(BuildContext context) => [
+        {'name': context.l10n.all, 'tag': 'All'},
+        {'name': context.l10n.lake, 'tag': 'pemandangandanau'},
+        {'name': context.l10n.waterfall, 'tag': 'airterjun'},
+        {'name': context.l10n.hill, 'tag': 'bukit'},
+        {'name': context.l10n.culture, 'tag': 'budaya'},
+        {'name': context.l10n.beach, 'tag': 'pantai'},
+      ];
 
   Future<void> updateUserTags(String userId, List<String> newTags) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
@@ -64,6 +64,7 @@ class _VacationsState extends State<Vacations> {
 
   @override
   Widget build(BuildContext context) {
+    final filters = _filters(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -77,7 +78,7 @@ class _VacationsState extends State<Vacations> {
             iconTheme: const IconThemeData(color: Colors.white),
             elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text('Travel Destinations',
+              title: Text(context.l10n.travelDestinations,
                   style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
               centerTitle: true,
               background: Container(
@@ -103,7 +104,7 @@ class _VacationsState extends State<Vacations> {
                     child: TextField(
                       style: AppTextStyles.bodyLarge,
                       decoration: InputDecoration(
-                        hintText: 'Search destinations...',
+                        hintText: context.l10n.searchDestinations,
                         hintStyle: AppTextStyles.bodyMedium,
                         prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary),
                         border: InputBorder.none,
@@ -124,10 +125,10 @@ class _VacationsState extends State<Vacations> {
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       physics: const BouncingScrollPhysics(),
-                      itemCount: _filters.length,
+                      itemCount: filters.length,
                       separatorBuilder: (context, index) => const SizedBox(width: 10),
                       itemBuilder: (context, index) {
-                        final filter = _filters[index];
+                        final filter = filters[index];
                         final isSelected = filterTag == filter['tag'];
                         return FilterButton(
                           text: filter['name']!,
@@ -266,10 +267,10 @@ class DestinationList extends StatelessWidget {
               children: [
                 Icon(Icons.landscape_rounded, size: 80, color: AppColors.divider),
                 const SizedBox(height: 16),
-                Text('Destination Not Found', style: AppTextStyles.headingSmall),
+                Text(context.l10n.destinationNotFound, style: AppTextStyles.headingSmall),
                 const SizedBox(height: 8),
                 Text(
-                  'Try using a different keyword\nor category filter.',
+                  context.l10n.tryDifferentKeywordOrCategory,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodyMedium,
                 ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart'; // Import style.dart kamu
 import 'KulinerModel.dart';
@@ -127,7 +128,7 @@ class _KulinerWidgetState extends State<KulinerWidget> {
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         title: Text(
-          'Signature Culinary',
+          context.l10n.signatureCulinary,
           style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
         ),
       ),
@@ -140,7 +141,7 @@ class _KulinerWidgetState extends State<KulinerWidget> {
                     children: [
                       Icon(Icons.restaurant_menu_rounded, size: 80, color: AppColors.divider),
                       const SizedBox(height: 16),
-                      Text('No culinary data available yet', style: AppTextStyles.bodyLarge),
+                      Text(context.l10n.noCulinaryDataYet, style: AppTextStyles.bodyLarge),
                     ],
                   ),
                 )

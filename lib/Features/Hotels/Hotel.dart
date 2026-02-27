@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_toba/Providers/UserProv.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart';
 import 'HotelDetail.dart';
 import 'HotelModel.dart';
@@ -187,9 +188,9 @@ class _HotelScreenState extends State<HotelScreen> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
-        title: const Text(
-          'Lake Toba Hotels',
-          style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
+        title: Text(
+          context.l10n.lakeTobaHotels,
+          style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
         ),
         flexibleSpace: Container(decoration: appBarGradient()),
       ),
@@ -222,11 +223,11 @@ class _HotelScreenState extends State<HotelScreen> {
                           ),
                           child: TextField(
                             controller: searchController,
-                            decoration: const InputDecoration(
-                              hintText: 'Search hotel name...',
-                              prefixIcon: Icon(Icons.search_rounded),
+                            decoration: InputDecoration(
+                              hintText: context.l10n.searchHotelName,
+                              prefixIcon: const Icon(Icons.search_rounded),
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 14),
                             ),
                             onChanged: (value) => setState(() {}),
                           ),
@@ -259,7 +260,7 @@ class _HotelScreenState extends State<HotelScreen> {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(
-                                    value == 'All' ? 'All Locations' : value,
+                                    value == 'All' ? context.l10n.allLocations : value,
                                   ),
                                 );
                               }).toList(),
@@ -285,12 +286,12 @@ class _HotelScreenState extends State<HotelScreen> {
                       scrollDirection: Axis.horizontal,
                       children: [
                         FilterButton(
-                          text: _getPriceFilterText(),
+                          text: _getPriceFilterText(context),
                           selected: priceFilterState != 'none',
                           onTap: togglePriceFilter,
                         ),
                         FilterButton(
-                          text: _getRatingFilterText(),
+                          text: _getRatingFilterText(context),
                           selected: ratingFilterState != 'none',
                           onTap: toggleRatingFilter,
                         ),
@@ -366,7 +367,7 @@ class _HotelScreenState extends State<HotelScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        'Valid until ${promo['date']!}',
+                                        '${context.l10n.validUntil} ${promo['date']!}',
                                         style: const TextStyle(
                                           color: Colors.white70,
                                           fontSize: 11,
@@ -385,12 +386,12 @@ class _HotelScreenState extends State<HotelScreen> {
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: 8)),
                 if (filteredList.isEmpty)
-                  const SliverFillRemaining(
+                  SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
                       child: Text(
-                        'Hotel not found.',
-                        style: TextStyle(
+                        context.l10n.hotelNotFound,
+                        style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -511,23 +512,23 @@ class _HotelScreenState extends State<HotelScreen> {
     );
   }
 
-  String _getPriceFilterText() {
+  String _getPriceFilterText(BuildContext context) {
     if (priceFilterState == 'highToLow') {
-      return 'High Price';
+      return context.l10n.highPrice;
     } else if (priceFilterState == 'lowToHigh') {
-      return 'Low Price';
+      return context.l10n.lowPrice;
     } else {
-      return 'Price Filter';
+      return context.l10n.priceFilter;
     }
   }
 
-  String _getRatingFilterText() {
+  String _getRatingFilterText(BuildContext context) {
     if (ratingFilterState == 'highToLow') {
-      return 'High Rating';
+      return context.l10n.highRating;
     } else if (ratingFilterState == 'lowToHigh') {
-      return 'Low Rating';
+      return context.l10n.lowRating;
     } else {
-      return 'Rating Filter';
+      return context.l10n.ratingFilter;
     }
   }
 }

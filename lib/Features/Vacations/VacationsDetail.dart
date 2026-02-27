@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_toba/Features/Vacations/VacationsModel.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/style.dart'; // Menggunakan design system kamu
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -20,7 +21,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unable to open the map link.')),
+          SnackBar(content: Text(context.l10n.unableOpenMapLink)),
         );
       }
     }
@@ -204,7 +205,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                               const Icon(Icons.map_rounded, color: Colors.green, size: 24),
                               const SizedBox(width: 12),
                               Text(
-                                "Open in Google Maps",
+                                context.l10n.openInGoogleMaps,
                                 style: AppTextStyles.label.copyWith(color: AppColors.textPrimary, fontSize: 14),
                               ),
                               const SizedBox(width: 8),
@@ -224,7 +225,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'About This Place',
+                            context.l10n.aboutThisPlace,
                             style: AppTextStyles.headingMedium,
                           ),
                           const SizedBox(height: 12),

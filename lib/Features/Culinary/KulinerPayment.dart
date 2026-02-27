@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_toba/Features/Culinary/KulinerModel.dart';
 import 'package:go_toba/Features/Culinary/VirtualAccountPage.dart';
+import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
 import 'package:go_toba/style.dart'; // Import design system
 
@@ -36,7 +37,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Delivery Address Details', style: AppTextStyles.headingMedium),
+          title: Text(context.l10n.deliveryAddressDetails, style: AppTextStyles.headingMedium),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -45,26 +46,26 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                 TextField(
                   controller: _addressController,
                   style: AppTextStyles.bodyLarge,
-                  decoration: AppDecorations.inputDecoration('Street / Landmark', icon: Icons.map_rounded),
+                  decoration: AppDecorations.inputDecoration(context.l10n.streetLandmark, icon: Icons.map_rounded),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _kecamatanController,
                   style: AppTextStyles.bodyLarge,
-                  decoration: AppDecorations.inputDecoration('District', icon: Icons.location_city_rounded),
+                  decoration: AppDecorations.inputDecoration(context.l10n.district, icon: Icons.location_city_rounded),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _detailBangunanController,
                   style: AppTextStyles.bodyLarge,
-                  decoration: AppDecorations.inputDecoration('Building Details (House No., Color)', icon: Icons.home_work_rounded),
+                  decoration: AppDecorations.inputDecoration(context.l10n.buildingDetails, icon: Icons.home_work_rounded),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _noHpController,
                   keyboardType: TextInputType.phone,
                   style: AppTextStyles.bodyLarge,
-                  decoration: AppDecorations.inputDecoration('Active Phone Number', icon: Icons.phone_rounded),
+                  decoration: AppDecorations.inputDecoration(context.l10n.activePhoneNumber, icon: Icons.phone_rounded),
                 ),
               ],
             ),
@@ -76,7 +77,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                 Expanded(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text('Cancel', style: AppTextStyles.label),
+                    child: Text(context.l10n.cancel, style: AppTextStyles.label),
                   ),
                 ),
                 Expanded(
@@ -89,7 +90,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                     onPressed: () {
                       if (_addressController.text.isEmpty || _noHpController.text.isEmpty) {
                          ScaffoldMessenger.of(context).showSnackBar(
-                           const SnackBar(content: Text('Street address and phone number are required!'), backgroundColor: AppColors.error)
+                           SnackBar(content: Text(context.l10n.streetAndPhoneRequired), backgroundColor: AppColors.error)
                          );
                          return;
                       }
@@ -101,7 +102,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                             '${_detailBangunanController.text} (Phone: ${_noHpController.text})';
                       });
                     },
-                    child: Text('Save', style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14)),
+                    child: Text(context.l10n.save, style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14)),
                   ),
                 ),
               ],
@@ -115,7 +116,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
   void _confirmPurchase() {
     if (_completeAddressController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please complete the delivery address first.'), backgroundColor: AppColors.error),
+        SnackBar(content: Text(context.l10n.completeDeliveryAddressFirst), backgroundColor: AppColors.error),
       );
       return;
     }
@@ -128,24 +129,24 @@ class _KulinerPaymentState extends State<KulinerPayment> {
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Confirm Order', style: AppTextStyles.headingMedium),
+          title: Text(context.l10n.confirmOrder, style: AppTextStyles.headingMedium),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Order:', style: AppTextStyles.label),
-              Text('${widget.kuliner.name} ($_quantity portions)', style: AppTextStyles.bodyMedium),
+              Text('${context.l10n.order}:', style: AppTextStyles.label),
+              Text('${widget.kuliner.name} ($_quantity ${context.l10n.portions})', style: AppTextStyles.bodyMedium),
               const SizedBox(height: 12),
               
-              Text('Address:', style: AppTextStyles.label),
+              Text('${context.l10n.address}:', style: AppTextStyles.label),
               Text(_completeAddressController.text, style: AppTextStyles.bodySmall),
               const SizedBox(height: 12),
               
-              Text('Notes:', style: AppTextStyles.label),
+              Text('${context.l10n.notes}:', style: AppTextStyles.label),
               Text(_notesController.text.isEmpty ? '-' : _notesController.text, style: AppTextStyles.bodySmall),
               const SizedBox(height: 12),
               
-              Text('Payment:', style: AppTextStyles.label),
+              Text('${context.l10n.payment}:', style: AppTextStyles.label),
               Text('$_selectedPaymentMethod (${_selectedPaymentMethod == 'E-Wallet' ? _selectedEWallet : _selectedBankTransfer})', style: AppTextStyles.bodyMedium),
               
               const Padding(
@@ -156,7 +157,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Total', style: AppTextStyles.headingSmall),
+                  Text(context.l10n.total, style: AppTextStyles.headingSmall),
                   Text(currencyFormatter.format(totalPrice), style: AppTextStyles.headingSmall.copyWith(color: AppColors.primary)),
                 ],
               ),
@@ -165,7 +166,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: AppTextStyles.label),
+              child: Text(context.l10n.cancel, style: AppTextStyles.label),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -176,7 +177,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                 Navigator.pop(context);
                 _processPayment();
               },
-              child: Text('Order Now', style: AppTextStyles.button.copyWith(color: Colors.white)),
+              child: Text(context.l10n.orderNow, style: AppTextStyles.button.copyWith(color: Colors.white)),
             ),
           ],
         );
@@ -199,7 +200,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
             children: [
               const CircularProgressIndicator(color: AppColors.primary),
               const SizedBox(height: 16),
-              DefaultTextStyle(style: AppTextStyles.label, child: const Text('Processing your order...')),
+              DefaultTextStyle(style: AppTextStyles.label, child: Text(context.l10n.processingOrder)),
             ],
           ),
         ),
@@ -279,9 +280,9 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                   },
                   child: Column(
                     children: [
-                      Text('Order Successful!', style: AppTextStyles.headingMedium),
+                      Text(context.l10n.orderSuccessful, style: AppTextStyles.headingMedium),
                       const SizedBox(height: 8),
-                      Text('Complete your payment so the food can be processed.', textAlign: TextAlign.center, style: AppTextStyles.bodyMedium),
+                      Text(context.l10n.completePaymentFoodProcessed, textAlign: TextAlign.center, style: AppTextStyles.bodyMedium),
                       const SizedBox(height: 24),
                       Container(
                         width: double.infinity,
@@ -293,7 +294,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                         ),
                         child: Column(
                           children: [
-                            Text('No. Virtual Account', style: AppTextStyles.label),
+                            Text(context.l10n.virtualAccountNumberLabel, style: AppTextStyles.label),
                             const SizedBox(height: 8),
                             Text(virtualAccountNumber, style: AppTextStyles.headingMedium.copyWith(letterSpacing: 2.5, color: AppColors.primaryDark, fontWeight: FontWeight.w800)),
                           ],
@@ -303,7 +304,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                       SizedBox(
                         width: double.infinity,
                         child: AppPrimaryButton(
-                          label: 'Continue to Payment',
+                          label: context.l10n.continueToPayment,
                           onTap: () {
                             Navigator.pushReplacement(
                               context,
@@ -322,7 +323,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
       }
     } catch (error) {
       if (mounted) Navigator.pop(context); // Tutup loading
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('An error occurred: $error'), backgroundColor: AppColors.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.errorOccurred(error.toString())), backgroundColor: AppColors.error));
     }
   }
 
@@ -343,7 +344,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
         flexibleSpace: Container(decoration: appBarGradient()),
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
-        title: Text('Order', style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
+        title: Text(context.l10n.order, style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -352,7 +353,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // --- KARTU PENGIRIMAN ---
-            Text('Delivery Address', style: AppTextStyles.headingSmall),
+            Text(context.l10n.deliveryAddress, style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             GestureDetector(
               onTap: _showAddressDialog,
@@ -371,10 +372,10 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(_completeAddressController.text.isEmpty ? 'Choose Delivery Address' : 'Your Address', style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
+                          Text(_completeAddressController.text.isEmpty ? context.l10n.chooseDeliveryAddress : context.l10n.yourAddress, style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
                           const SizedBox(height: 4),
                           Text(
-                            _completeAddressController.text.isEmpty ? 'Not set yet' : _completeAddressController.text,
+                            _completeAddressController.text.isEmpty ? context.l10n.notSetYet : _completeAddressController.text,
                             style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: _completeAddressController.text.isEmpty ? AppColors.error : AppColors.textPrimary),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -389,7 +390,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
             ),
             
             const SizedBox(height: 24),
-            Text('Order Details', style: AppTextStyles.headingSmall),
+            Text(context.l10n.orderDetails, style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             
             // --- KARTU MENU KULINER ---
@@ -426,7 +427,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Portion Quantity', style: AppTextStyles.bodyMedium),
+                      Text(context.l10n.portionQuantity, style: AppTextStyles.bodyMedium),
                       Container(
                         decoration: BoxDecoration(color: AppColors.surfaceAlt, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.divider)),
                         child: Row(
@@ -453,7 +454,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                   TextField(
                     controller: _notesController,
                     style: AppTextStyles.bodyMedium,
-                    decoration: AppDecorations.inputDecoration('Notes (e.g., spicy, no celery)', icon: Icons.edit_note_rounded),
+                    decoration: AppDecorations.inputDecoration(context.l10n.notesHint, icon: Icons.edit_note_rounded),
                     maxLines: 2,
                     minLines: 1,
                   ),
@@ -462,7 +463,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
             ),
             
             const SizedBox(height: 24),
-            Text('Payment Method', style: AppTextStyles.headingSmall),
+            Text(context.l10n.paymentMethod, style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             
             // --- KARTU METODE PEMBAYARAN ---
@@ -473,7 +474,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                 children: [
                   DropdownButtonFormField<String>(
                     initialValue: _selectedPaymentMethod,
-                    decoration: AppDecorations.inputDecoration('Payment Type', icon: Icons.payment_rounded),
+                    decoration: AppDecorations.inputDecoration(context.l10n.paymentType, icon: Icons.payment_rounded),
                     icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                     onChanged: (value) {
                       setState(() {
@@ -486,7 +487,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                   if (_selectedPaymentMethod == 'E-Wallet')
                     DropdownButtonFormField<String>(
                       initialValue: _selectedEWallet,
-                      decoration: AppDecorations.inputDecoration('Select E-Wallet', icon: Icons.account_balance_wallet_rounded),
+                      decoration: AppDecorations.inputDecoration(context.l10n.selectEWallet, icon: Icons.account_balance_wallet_rounded),
                       icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                       onChanged: (value) => setState(() => _selectedEWallet = value!),
                       items: ['Gopay', 'Ovo', 'Dana', 'ShopeePay'].map((ewallet) => DropdownMenuItem(value: ewallet, child: Text(ewallet, style: AppTextStyles.bodyLarge))).toList(),
@@ -494,7 +495,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                   else
                     DropdownButtonFormField<String>(
                       initialValue: _selectedBankTransfer,
-                      decoration: AppDecorations.inputDecoration('Select Bank', icon: Icons.account_balance_rounded),
+                      decoration: AppDecorations.inputDecoration(context.l10n.selectBank, icon: Icons.account_balance_rounded),
                       icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                       onChanged: (value) => setState(() => _selectedBankTransfer = value!),
                       items: ['BCA', 'BRI', 'BNI', 'Mandiri'].map((bank) => DropdownMenuItem(value: bank, child: Text(bank, style: AppTextStyles.bodyLarge))).toList(),
@@ -525,7 +526,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Total Price', style: AppTextStyles.caption),
+                  Text(context.l10n.totalPrice, style: AppTextStyles.caption),
                   const SizedBox(height: 2),
                   Text(
                     currencyFormatter.format(totalPrice),
@@ -537,7 +538,7 @@ class _KulinerPaymentState extends State<KulinerPayment> {
             const SizedBox(width: 16),
             Expanded(
               child: AppPrimaryButton(
-                label: 'Pay',
+                label: context.l10n.pay,
                 icon: Icons.check_circle_outline_rounded,
                 onTap: _confirmPurchase,
               ),
