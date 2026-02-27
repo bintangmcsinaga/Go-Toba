@@ -23,7 +23,7 @@ class _BookingPageState extends State<BookingPage> {
   late DateTime _checkInDate;
   late DateTime _checkOutDate;
   late int price;
-  String _selectedPaymentMethod = 'Transfer Bank';
+  String _selectedPaymentMethod = 'Bank Transfer';
   String _selectedBank = 'BCA';
   String _creditCardNumber = '';
   String _selectedEwallet = "OVO";
@@ -86,7 +86,7 @@ class _BookingPageState extends State<BookingPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Tanggal Check-out harus setelah Check-in'),
+            content: const Text('Check-out date must be after Check-in'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -101,14 +101,14 @@ class _BookingPageState extends State<BookingPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Konfirmasi Booking', style: AppTextStyles.headingMedium),
+        title: Text('Confirm Booking', style: AppTextStyles.headingMedium),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('Hotel: ${widget.hotel.name}', style: AppTextStyles.bodyMedium),
             const SizedBox(height: 4),
-            Text('Kamar: ${widget.room.type}', style: AppTextStyles.bodyMedium),
+            Text('Room: ${widget.room.type}', style: AppTextStyles.bodyMedium),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
@@ -131,20 +131,20 @@ class _BookingPageState extends State<BookingPage> {
               style: AppTextStyles.headingSmall.copyWith(color: AppColors.primary),
             ),
             const SizedBox(height: 12),
-            Text('Metode: $_selectedPaymentMethod', style: AppTextStyles.bodyMedium),
-            if (_selectedPaymentMethod == 'Kartu Kredit')
-              Text('Kartu: ${_creditCardNumber.isNotEmpty ? _creditCardNumber : "-"}', style: AppTextStyles.bodySmall),
-            if (_selectedPaymentMethod == 'Transfer Bank')
+            Text('Method: $_selectedPaymentMethod', style: AppTextStyles.bodyMedium),
+            if (_selectedPaymentMethod == 'Credit Card')
+              Text('Card: ${_creditCardNumber.isNotEmpty ? _creditCardNumber : "-"}', style: AppTextStyles.bodySmall),
+            if (_selectedPaymentMethod == 'Bank Transfer')
               Text('Bank: $_selectedBank', style: AppTextStyles.bodySmall),
             if (_selectedPaymentMethod == 'E-Wallet')
               Text('E-Wallet: $_selectedEwallet', style: AppTextStyles.bodySmall),
             const SizedBox(height: 16),
-            Text('Lanjutkan booking?', style: AppTextStyles.bodyLarge),
+            Text('Continue booking?', style: AppTextStyles.bodyLarge),
           ],
         ),
         actions: <Widget>[
           TextButton(
-            child: Text('Batal', style: AppTextStyles.button.copyWith(color: AppColors.textSecondary)),
+            child: Text('Cancel', style: AppTextStyles.button.copyWith(color: AppColors.textSecondary)),
             onPressed: () => Navigator.of(context).pop(),
           ),
           ElevatedButton(
@@ -152,7 +152,7 @@ class _BookingPageState extends State<BookingPage> {
               backgroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: Text('Konfirmasi', style: AppTextStyles.button.copyWith(color: Colors.white)),
+            child: Text('Confirm', style: AppTextStyles.button.copyWith(color: Colors.white)),
             onPressed: () {
               Navigator.of(context).pop();
               _prosesBooking();
@@ -181,7 +181,7 @@ class _BookingPageState extends State<BookingPage> {
       'virtualAccountNumber': virtualAccountNumber,
     };
 
-    if (_selectedPaymentMethod == 'Kartu Kredit') {
+    if (_selectedPaymentMethod == 'Credit Card') {
       bookingData['creditCardNumber'] = _creditCardNumber;
     } else if (_selectedPaymentMethod == 'E-Wallet') {
       bookingData['eWalletName'] = _selectedEwallet;
@@ -209,7 +209,7 @@ class _BookingPageState extends State<BookingPage> {
               const SizedBox(height: 16),
               DefaultTextStyle(
                 style: AppTextStyles.label,
-                child: const Text('Memproses pesanan...'),
+                child: const Text('Processing your order...'),
               ),
             ],
           ),
@@ -288,10 +288,10 @@ class _BookingPageState extends State<BookingPage> {
                   },
                   child: Column(
                     children: [
-                      Text('Booking Berhasil!', style: AppTextStyles.headingMedium),
+                      Text('Booking Successful!', style: AppTextStyles.headingMedium),
                       const SizedBox(height: 8),
                       Text(
-                        'Terima kasih! Pesanan Anda sedang diproses.',
+                        'Thank you! Your order is being processed.',
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodyMedium,
                       ),
@@ -325,7 +325,7 @@ class _BookingPageState extends State<BookingPage> {
                       SizedBox(
                         width: double.infinity,
                         child: AppPrimaryButton(
-                          label: 'Selesaikan Pembayaran',
+                          label: 'Complete Payment',
                           onTap: () {
                             Navigator.pushReplacement(
                               context,
@@ -347,11 +347,11 @@ class _BookingPageState extends State<BookingPage> {
         );
       }).catchError((error) {
         Navigator.pop(context); // Tutup loading
-        _showErrorDialog('Gagal', 'Gagal menambahkan riwayat: $error');
+        _showErrorDialog('Error', 'Failed to add history: $error');
       });
     }).catchError((error) {
       Navigator.pop(context); // Tutup loading
-      _showErrorDialog('Gagal', 'Sistem gagal memproses booking: $error');
+      _showErrorDialog('Error', 'The system failed to process your booking: $error');
     });
   }
 
@@ -415,7 +415,7 @@ class _BookingPageState extends State<BookingPage> {
         elevation: 0,
         flexibleSpace: Container(decoration: appBarGradient()),
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Text('Detail Pesanan', style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
+        title: Text('Order Details', style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -449,7 +449,7 @@ class _BookingPageState extends State<BookingPage> {
                           children: [
                             Expanded(child: Text(widget.room.type, style: AppTextStyles.headingMedium)),
                             AppChip(
-                              label: widget.room.available ? 'Tersedia' : 'Penuh',
+                              label: widget.room.available ? 'Available' : 'Full',
                               accent: !widget.room.available,
                             ),
                           ],
@@ -461,7 +461,7 @@ class _BookingPageState extends State<BookingPage> {
                           children: [
                             const Icon(Icons.sell_outlined, size: 18, color: AppColors.textSecondary),
                             const SizedBox(width: 8),
-                            Text('Rp ${currencyFormatter.format(widget.room.pricePerNight).split('Rp')[1]} / malam', 
+                            Text('Rp ${currencyFormatter.format(widget.room.pricePerNight).split('Rp')[1]} / night', 
                               style: AppTextStyles.bodyMedium),
                           ],
                         ),
@@ -485,7 +485,7 @@ class _BookingPageState extends State<BookingPage> {
             const SizedBox(height: 24),
 
             // --- TANGGAL MENGINAP ---
-            Text('Tanggal Menginap', style: AppTextStyles.headingSmall),
+            Text('Stay Dates', style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -500,13 +500,13 @@ class _BookingPageState extends State<BookingPage> {
             const SizedBox(height: 24),
 
             // --- METODE PEMBAYARAN ---
-            Text('Metode Pembayaran', style: AppTextStyles.headingSmall),
+            Text('Payment Method', style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _selectedPaymentMethod,
-              decoration: AppDecorations.inputDecoration('Pilih Metode Pembayaran', icon: Icons.payment_rounded),
+              initialValue: _selectedPaymentMethod,
+              decoration: AppDecorations.inputDecoration('Select Payment Method', icon: Icons.payment_rounded),
               icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
-              items: <String>['Transfer Bank', 'Kartu Kredit', 'E-Wallet'].map((String value) {
+              items: <String>['Bank Transfer', 'Credit Card', 'E-Wallet'].map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value, style: AppTextStyles.bodyLarge),
@@ -522,11 +522,11 @@ class _BookingPageState extends State<BookingPage> {
               },
             ),
 
-            if (_selectedPaymentMethod == 'Transfer Bank') ...[
+            if (_selectedPaymentMethod == 'Bank Transfer') ...[
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedBank,
-                decoration: AppDecorations.inputDecoration('Pilih Bank', icon: Icons.account_balance_rounded),
+                initialValue: _selectedBank,
+                decoration: AppDecorations.inputDecoration('Select Bank', icon: Icons.account_balance_rounded),
                 icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                 items: <String>['BCA', 'BRI', 'BNI', 'Mandiri'].map((String bank) {
                   return DropdownMenuItem<String>(
@@ -541,8 +541,8 @@ class _BookingPageState extends State<BookingPage> {
             if (_selectedPaymentMethod == 'E-Wallet') ...[
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedEwallet,
-                decoration: AppDecorations.inputDecoration('Pilih E-Wallet', icon: Icons.account_balance_wallet_rounded),
+                initialValue: _selectedEwallet,
+                decoration: AppDecorations.inputDecoration('Select E-Wallet', icon: Icons.account_balance_wallet_rounded),
                 icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                 items: <String>['DANA', 'OVO', 'Doku', 'Gopay'].map((String eWallet) {
                   return DropdownMenuItem<String>(
@@ -554,12 +554,12 @@ class _BookingPageState extends State<BookingPage> {
               ),
             ],
 
-            if (_selectedPaymentMethod == 'Kartu Kredit') ...[
+            if (_selectedPaymentMethod == 'Credit Card') ...[
               const SizedBox(height: 16),
               TextFormField(
                 keyboardType: TextInputType.number,
                 style: AppTextStyles.bodyLarge,
-                decoration: AppDecorations.inputDecoration('Nomor Kartu Kredit', icon: Icons.credit_card_rounded),
+                decoration: AppDecorations.inputDecoration('Credit Card Number', icon: Icons.credit_card_rounded),
                 onChanged: (value) => setState(() => _creditCardNumber = value),
               ),
             ],
@@ -590,7 +590,7 @@ class _BookingPageState extends State<BookingPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Total Harga', style: AppTextStyles.caption),
+                  Text('Total Price', style: AppTextStyles.caption),
                   const SizedBox(height: 2),
                   Text(
                     currencyFormatter.format(price),
@@ -602,7 +602,7 @@ class _BookingPageState extends State<BookingPage> {
             const SizedBox(width: 16),
             Expanded(
               child: AppPrimaryButton(
-                label: 'Konfirmasi',
+                label: 'Confirm',
                 icon: Icons.check_circle_outline_rounded,
                 onTap: _confirmBooking,
               ),

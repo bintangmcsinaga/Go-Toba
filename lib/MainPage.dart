@@ -22,20 +22,31 @@ class _MainPageState extends State<MainPage> {
   Future<void> loadUserData() async {
     final uid = context.read<UserProvider>().uid;
 
-    if (uid != null) {
+    if (uid == null || uid.trim().isEmpty) return;
+
+    try {
       DocumentSnapshot userSnapshot =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
       if (userSnapshot.exists) {
         Map<String, dynamic> userData =
             userSnapshot.data() as Map<String, dynamic>;
+        final username = (userData['username'] ?? userData['name'] ?? '')
+            .toString();
+        final email = (userData['email'] ?? '').toString();
+        final phone = (userData['phone'] ?? '').toString();
+        final profilePhoto = (userData['profilephoto'] ?? '').toString();
+
+        if (!mounted) return;
         context.read<UserProvider>().updateUserData(
-              userData['username'],
-              userData['email'],
-              userData['phone'],
-              userData['profilephoto'],
+              username,
+              email,
+              phone,
+              profilePhoto,
             );
       }
+    } catch (_) {
+      // Keep app usable even if user profile document is incomplete/corrupted.
     }
   }
 

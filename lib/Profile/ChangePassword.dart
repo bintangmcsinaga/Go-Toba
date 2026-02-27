@@ -24,7 +24,7 @@ class _ChangepasswordState extends State<Changepassword> {
     final email = _emailController.text.trim();
 
     if (email.isEmpty) {
-      _showToast('Email tidak boleh kosong', isError: true);
+      _showToast('Email cannot be empty', isError: true);
       return;
     }
 
@@ -32,19 +32,19 @@ class _ChangepasswordState extends State<Changepassword> {
         RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$')
             .hasMatch(email);
     if (!emailValid) {
-      _showToast('Format email tidak valid', isError: true);
+      _showToast('Invalid email format', isError: true);
       return;
     }
 
     if (!mounted) return;
     if (email != context.read<UserProvider>().email) {
-      _showToast('Email tidak cocok dengan akunmu', isError: true);
+      _showToast('Email does not match your account', isError: true);
       return;
     }
 
     try {
       await _auth.sendPasswordResetEmail(email: email);
-      _showToast('Link reset berhasil dikirim ke email', isError: false);
+      _showToast('Reset link sent to email', isError: false);
       if (!mounted) return;
       context.read<ResetPasswordProvider>().startTimer();
       Navigator.pushReplacement(
@@ -52,7 +52,7 @@ class _ChangepasswordState extends State<Changepassword> {
         MaterialPageRoute(builder: (_) => EmailSentScreen(email: email)),
       );
     } catch (e) {
-      _showToast('Terjadi kesalahan: $e', isError: true);
+      _showToast('An error occurred: $e', isError: true);
     }
   }
 
@@ -75,9 +75,9 @@ class _ChangepasswordState extends State<Changepassword> {
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             iconTheme: const IconThemeData(color: Colors.white),
-            title: Text('Ganti Password',
-                style:
-                    AppTextStyles.headingSmall.copyWith(color: Colors.white)),
+            title: Text('Change Password',
+              style:
+                AppTextStyles.headingSmall.copyWith(color: Colors.white)),
             flexibleSpace: Container(
               decoration:
                   const BoxDecoration(gradient: AppGradients.primaryVertical),
@@ -110,7 +110,7 @@ class _ChangepasswordState extends State<Changepassword> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Masukkan emailmu dan kami akan mengirim\nlink untuk mereset passwordmu.',
+                    'Enter your email and we will send\na link to reset your password.',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.bodyMedium,
                   ),
@@ -121,7 +121,7 @@ class _ChangepasswordState extends State<Changepassword> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: AppDecorations.inputDecoration(
-                      'Alamat Email',
+                      'Email Address',
                       icon: Icons.email_outlined,
                     ),
                   ),
@@ -130,13 +130,13 @@ class _ChangepasswordState extends State<Changepassword> {
                   // ── Button ─────────────────────────────────────
                   Consumer<ResetPasswordProvider>(
                     builder: (context, prov, _) => AppPrimaryButton(
-                      label: prov.canResendEmail
-                          ? 'Kirim Link Reset'
-                          : 'Tunggu ${prov.secondsRemaining}s',
-                      icon: prov.canResendEmail
+                        label: prov.canResendEmail
+                          ? 'Send Reset Link'
+                          : 'Wait ${prov.secondsRemaining}s',
+                        icon: prov.canResendEmail
                           ? Icons.send_rounded
                           : Icons.hourglass_empty_rounded,
-                      onTap: prov.canResendEmail ? _resetPassword : () {},
+                        onTap: prov.canResendEmail ? _resetPassword : () {},
                     ),
                   ),
                 ],
@@ -163,7 +163,7 @@ class _EmailSentScreenState extends State<EmailSentScreen> {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: widget.email);
       Fluttertoast.showToast(
-        msg: 'Link reset telah dikirim ulang.',
+        msg: 'Reset link resent.',
         gravity: ToastGravity.TOP,
         backgroundColor: AppColors.success,
         textColor: Colors.white,
@@ -172,7 +172,7 @@ class _EmailSentScreenState extends State<EmailSentScreen> {
       context.read<ResetPasswordProvider>().startTimer();
     } catch (e) {
       Fluttertoast.showToast(
-        msg: 'Gagal: $e',
+        msg: 'Failed: $e',
         gravity: ToastGravity.TOP,
         backgroundColor: AppColors.error,
         textColor: Colors.white,
@@ -207,12 +207,12 @@ class _EmailSentScreenState extends State<EmailSentScreen> {
               ),
               const SizedBox(height: 28),
 
-              Text('Email Terkirim!',
+                Text('Email Sent!',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.headingLarge),
               const SizedBox(height: 12),
               Text(
-                'Link reset password telah dikirim ke\n${widget.email}\n\nPeriksa kotak masuk atau folder spam.',
+                'Password reset link has been sent to\n${widget.email}\n\nCheck your inbox or spam folder.',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyMedium,
               ),
@@ -221,20 +221,20 @@ class _EmailSentScreenState extends State<EmailSentScreen> {
               // ── Resend button ────────────────────────────────
               Consumer<ResetPasswordProvider>(
                 builder: (context, prov, _) => AppPrimaryButton(
-                  label: prov.canResendEmail
-                      ? 'Kirim Ulang'
-                      : 'Kirim ulang dalam ${prov.secondsRemaining}s',
-                  icon: prov.canResendEmail
+                    label: prov.canResendEmail
+                      ? 'Resend'
+                      : 'Resend in ${prov.secondsRemaining}s',
+                    icon: prov.canResendEmail
                       ? Icons.refresh_rounded
                       : Icons.timer_rounded,
-                  onTap: prov.canResendEmail ? _resendEmail : () {},
+                    onTap: prov.canResendEmail ? _resendEmail : () {},
                 ),
               ),
               const SizedBox(height: 16),
 
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Kembali',
+                child: Text('Back',
                     style: AppTextStyles.button
                         .copyWith(color: AppColors.primary)),
               ),

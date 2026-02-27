@@ -87,12 +87,12 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Konfirmasi Pesanan', style: AppTextStyles.headingMedium),
+          title: Text('Confirm Order', style: AppTextStyles.headingMedium),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Rute Perjalanan', style: AppTextStyles.label),
+              Text('Travel Route', style: AppTextStyles.label),
               const SizedBox(height: 4),
               Text('${widget.ticket.from} ➔ ${widget.ticket.to}', style: AppTextStyles.bodyMedium),
               
@@ -107,14 +107,14 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Tanggal', style: AppTextStyles.label),
+                      Text('Date', style: AppTextStyles.label),
                       Text(_selectedDate != null ? DateFormat("dd MMM yyyy").format(_selectedDate!) : '-', style: AppTextStyles.bodyMedium),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('Waktu', style: AppTextStyles.label),
+                      Text('Time', style: AppTextStyles.label),
                       Text('$_selectedDepartureTime', style: AppTextStyles.bodyMedium),
                     ],
                   ),
@@ -129,15 +129,15 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Penumpang', style: AppTextStyles.bodyMedium),
-                  Text('$_selectedNumberOfPeople Orang', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
+                  Text('Passengers', style: AppTextStyles.bodyMedium),
+                  Text('$_selectedNumberOfPeople People', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Pembayaran', style: AppTextStyles.bodyMedium),
+                  Text('Payment', style: AppTextStyles.bodyMedium),
                   Text('$_selectedPaymentOption', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
@@ -148,7 +148,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total Harga', style: AppTextStyles.headingSmall),
+                    Text('Total Price', style: AppTextStyles.headingSmall),
                     Text(
                       currencyFormatter.format(widget.ticket.price * _selectedNumberOfPeople),
                       style: AppTextStyles.headingSmall.copyWith(color: AppColors.primary),
@@ -160,7 +160,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Batal', style: AppTextStyles.button.copyWith(color: AppColors.textSecondary)),
+              child: Text('Cancel', style: AppTextStyles.button.copyWith(color: AppColors.textSecondary)),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             ElevatedButton(
@@ -168,7 +168,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: Text('Konfirmasi', style: AppTextStyles.button.copyWith(color: Colors.white)),
+              child: Text('Confirm', style: AppTextStyles.button.copyWith(color: Colors.white)),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 _processBooking(parentContext, user, virtualAccountNumber);
@@ -201,7 +201,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
               const SizedBox(height: 16),
               DefaultTextStyle(
                 style: AppTextStyles.label,
-                child: const Text('Memproses pesanan...'),
+                child: const Text('Processing your order...'),
               ),
             ],
           ),
@@ -293,9 +293,9 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                 },
                 child: Column(
                   children: [
-                    Text('Pesanan Berhasil!', style: AppTextStyles.headingMedium),
+                    Text('Order Successful!', style: AppTextStyles.headingMedium),
                     const SizedBox(height: 8),
-                    Text('Silakan selesaikan pembayaran.', textAlign: TextAlign.center, style: AppTextStyles.bodyMedium),
+                    Text('Please complete your payment.', textAlign: TextAlign.center, style: AppTextStyles.bodyMedium),
                     const SizedBox(height: 24),
                     Container(
                       width: double.infinity,
@@ -320,7 +320,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                     SizedBox(
                       width: double.infinity,
                       child: AppPrimaryButton(
-                        label: 'Lanjut ke Pembayaran',
+                        label: 'Continue to Payment',
                         onTap: () {
                           Navigator.pushReplacement(
                             parentContext,
@@ -367,7 +367,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
         flexibleSpace: Container(decoration: appBarGradient()),
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
-          'Detail Pemesanan',
+          'Booking Details',
           style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
         ),
       ),
@@ -387,7 +387,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Operator Travel', style: AppTextStyles.headingSmall),
+                      Text('Travel Operator', style: AppTextStyles.headingSmall),
                       AppChip(label: widget.ticket.transportName, accent: true),
                     ],
                   ),
@@ -407,10 +407,10 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Dari', style: AppTextStyles.caption),
+                            Text('From', style: AppTextStyles.caption),
                             Text(widget.ticket.from, style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
                             const SizedBox(height: 20),
-                            Text('Tujuan', style: AppTextStyles.caption),
+                            Text('Destination', style: AppTextStyles.caption),
                             Text(widget.ticket.to, style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold)),
                           ],
                         ),
@@ -422,7 +422,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
             ),
             
             const SizedBox(height: 24),
-            Text('Jadwal & Penumpang', style: AppTextStyles.headingSmall),
+            Text('Schedule & Passengers', style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             
             // --- KARTU FORM ---
@@ -437,14 +437,14 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                       child: TextFormField(
                         controller: _dateController,
                         style: AppTextStyles.bodyLarge,
-                        decoration: AppDecorations.inputDecoration('Tanggal Keberangkatan', icon: Icons.calendar_month_rounded),
+                        decoration: AppDecorations.inputDecoration('Departure Date', icon: Icons.calendar_month_rounded),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _selectedDepartureTime,
-                    decoration: AppDecorations.inputDecoration('Waktu Keberangkatan', icon: Icons.schedule_rounded),
+                    initialValue: _selectedDepartureTime,
+                    decoration: AppDecorations.inputDecoration('Departure Time', icon: Icons.schedule_rounded),
                     icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                     onChanged: (newValue) => setState(() => _selectedDepartureTime = newValue),
                     items: widget.ticket.departTime
@@ -453,12 +453,12 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
-                    value: _selectedNumberOfPeople,
-                    decoration: AppDecorations.inputDecoration('Jumlah Penumpang', icon: Icons.group_rounded),
+                    initialValue: _selectedNumberOfPeople,
+                    decoration: AppDecorations.inputDecoration('Number of Passengers', icon: Icons.group_rounded),
                     icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                     onChanged: (newValue) => setState(() => _selectedNumberOfPeople = newValue!),
                     items: List.generate(6, (index) => index + 1)
-                        .map((number) => DropdownMenuItem(value: number, child: Text('$number Orang', style: AppTextStyles.bodyLarge)))
+                        .map((number) => DropdownMenuItem(value: number, child: Text('$number People', style: AppTextStyles.bodyLarge)))
                         .toList(),
                   ),
                 ],
@@ -466,7 +466,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
             ),
 
             const SizedBox(height: 24),
-            Text('Metode Pembayaran', style: AppTextStyles.headingSmall),
+            Text('Payment Method', style: AppTextStyles.headingSmall),
             const SizedBox(height: 12),
             
             // --- KARTU PEMBAYARAN ---
@@ -476,8 +476,8 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
               child: Column(
                 children: [
                   DropdownButtonFormField<String>(
-                    value: _selectedPaymentMethod,
-                    decoration: AppDecorations.inputDecoration('Pilih Jenis', icon: Icons.account_balance_wallet_rounded),
+                    initialValue: _selectedPaymentMethod,
+                    decoration: AppDecorations.inputDecoration('Select Type', icon: Icons.account_balance_wallet_rounded),
                     icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                     onChanged: (newValue) {
                       setState(() {
@@ -492,8 +492,8 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                   if (_selectedPaymentMethod != null) ...[
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: _selectedPaymentOption,
-                      decoration: AppDecorations.inputDecoration('Pilih Bank/Provider', icon: Icons.account_balance_rounded),
+                      initialValue: _selectedPaymentOption,
+                      decoration: AppDecorations.inputDecoration('Select Bank/Provider', icon: Icons.account_balance_rounded),
                       icon: const Icon(Icons.expand_more_rounded, color: AppColors.primary),
                       onChanged: (newValue) => setState(() => _selectedPaymentOption = newValue),
                       items: paymentOptions[_selectedPaymentMethod]!
@@ -531,7 +531,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Total Harga', style: AppTextStyles.caption),
+                  Text('Total Price', style: AppTextStyles.caption),
                   const SizedBox(height: 2),
                   Text(
                     currencyFormatter.format(widget.ticket.price * _selectedNumberOfPeople),
@@ -543,7 +543,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
             const SizedBox(width: 16),
             Expanded(
               child: AppPrimaryButton(
-                label: 'Pesan',
+                label: 'Book',
                 icon: Icons.confirmation_number_rounded,
                 onTap: () {
                   if (_selectedDate != null &&
@@ -553,7 +553,7 @@ class _BusTicketDetailPageState extends State<BusTicketDetailPage> {
                     _showConfirmationDialog();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: const Text('Mohon lengkapi semua data.'),
+                      content: const Text('Please complete all fields.'),
                       backgroundColor: AppColors.warning,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

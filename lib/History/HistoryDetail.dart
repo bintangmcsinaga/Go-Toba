@@ -47,12 +47,12 @@ class _HistoryDetailState extends State<HistoryDetail> {
         context: context,
         builder: (context) => AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text("Batalkan Pesanan?", style: AppTextStyles.headingMedium),
-              content: Text("Apakah Anda yakin ingin membatalkan pesanan ini?", style: AppTextStyles.bodyMedium),
+              title: Text("Cancel Booking?", style: AppTextStyles.headingMedium),
+              content: Text("Are you sure you want to cancel this booking?", style: AppTextStyles.bodyMedium),
               actions: [
                 TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text("Tidak", style: AppTextStyles.label.copyWith(color: AppColors.textSecondary))),
+                    child: Text("No", style: AppTextStyles.label.copyWith(color: AppColors.textSecondary))),
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.error,
@@ -62,7 +62,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                       Navigator.pop(context);
                       _handleDeadlinePassed();
                     },
-                    child: Text("Ya, Batalkan", style: AppTextStyles.label.copyWith(color: Colors.white)))
+                    child: Text("Yes, Cancel", style: AppTextStyles.label.copyWith(color: Colors.white)))
               ],
             ));
   }
@@ -94,7 +94,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
           .delete();
 
       Fluttertoast.showToast(
-        msg: 'Waktu pembayaran habis. Pesanan dibatalkan.',
+        msg: 'Payment time expired. Booking cancelled.',
         gravity: ToastGravity.TOP,
         backgroundColor: AppColors.error,
         textColor: Colors.white,
@@ -141,14 +141,14 @@ class _HistoryDetailState extends State<HistoryDetail> {
           });
         }
         Fluttertoast.showToast(
-          msg: 'Ulasan berhasil disimpan',
+          msg: 'Review saved successfully',
           gravity: ToastGravity.TOP,
           backgroundColor: AppColors.success,
           textColor: Colors.white,
         );
       }).catchError((error) {
         Fluttertoast.showToast(
-          msg: 'Ulasan gagal disimpan',
+          msg: 'Failed to save review',
           gravity: ToastGravity.TOP,
           backgroundColor: AppColors.error,
           textColor: Colors.white,
@@ -204,7 +204,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isPendingPayment ? 'Menunggu Pembayaran' : 'Transaksi Berhasil',
+                          isPendingPayment ? 'Waiting for Payment' : 'Transaction Successful',
                           style: AppTextStyles.headingSmall.copyWith(
                             color: isPendingPayment ? AppColors.error : AppColors.success,
                           ),
@@ -212,7 +212,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                         if (isPendingPayment) ...[
                           const SizedBox(height: 2),
                           Text(
-                            'Selesaikan dalam ${_formatDuration(_timeLeft)}',
+                            'Complete in ${_formatDuration(_timeLeft)}',
                             style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
                           ),
                         ]
@@ -231,18 +231,18 @@ class _HistoryDetailState extends State<HistoryDetail> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Detail Pesanan', style: AppTextStyles.headingMedium),
+                  Text('Booking Details', style: AppTextStyles.headingMedium),
                   const SizedBox(height: 16),
                   
-                  _buildDetailRow('ID Transaksi', widget.historyItem.id),
-                  _buildDetailRow('Tanggal Transaksi', widget.historyItem.date),
-                  _buildDetailRow('Metode Pembayaran', widget.historyItem.paymentMethod),
+                  _buildDetailRow('Transaction ID', widget.historyItem.id),
+                  _buildDetailRow('Transaction Date', widget.historyItem.date),
+                  _buildDetailRow('Payment Method', widget.historyItem.paymentMethod),
                   if (showVirtualAccount) ...[
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Divider(color: AppColors.divider),
                     ),
-                    Text('Nomor Virtual Account', style: AppTextStyles.label),
+                    Text('Virtual Account Number', style: AppTextStyles.label),
                     const SizedBox(height: 4),
                     Text(
                       widget.historyItem.virtualAccountNumber, 
@@ -257,19 +257,19 @@ class _HistoryDetailState extends State<HistoryDetail> {
 
                   // Detail Spesifik Tipe
                   if (widget.historyItem.historyType == 'hotel') ...[
-                    _buildDetailRow('Nama Hotel', widget.historyItem.hotelName),
-                    _buildDetailRow('Tipe Kamar', widget.historyItem.roomType),
+                    _buildDetailRow('Hotel Name', widget.historyItem.hotelName),
+                    _buildDetailRow('Room Type', widget.historyItem.roomType),
                   ],
                   if (widget.historyItem.historyType == 'kuliner') ...[
-                    _buildDetailRow('Nama Kuliner', widget.historyItem.kulinerName),
+                    _buildDetailRow('Culinary Name', widget.historyItem.kulinerName),
                   ],
                   if (widget.historyItem.historyType == 'bus' || widget.historyItem.historyType == 'Ship') ...[
-                    _buildDetailRow('Transportasi', widget.historyItem.transportName),
-                    _buildDetailRow('Tanggal Berangkat', widget.historyItem.departDate),
-                    _buildDetailRow('Waktu Keberangkatan', widget.historyItem.departTime),
-                    _buildDetailRow('Asal', widget.historyItem.origin),
-                    _buildDetailRow('Tujuan', widget.historyItem.destination),
-                    _buildDetailRow('Jumlah Penumpang', '${widget.historyItem.totalpassanger} Orang'),
+                    _buildDetailRow('Transportation', widget.historyItem.transportName),
+                    _buildDetailRow('Departure Date', widget.historyItem.departDate),
+                    _buildDetailRow('Departure Time', widget.historyItem.departTime),
+                    _buildDetailRow('Origin', widget.historyItem.origin),
+                    _buildDetailRow('Destination', widget.historyItem.destination),
+                    _buildDetailRow('Total Passengers', '${widget.historyItem.totalpassanger} Persons'),
                   ],
 
                   const Padding(
@@ -281,7 +281,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total Pembayaran', style: AppTextStyles.headingSmall),
+                      Text('Total Payment', style: AppTextStyles.headingSmall),
                       Text(
                         'Rp ${widget.historyItem.price}',
                         style: AppTextStyles.headingMedium.copyWith(color: AppColors.primary),
@@ -318,7 +318,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: Text("Batalkan Pesanan", style: AppTextStyles.button.copyWith(color: AppColors.error)),
+                      child: Text("Cancel Booking", style: AppTextStyles.button.copyWith(color: AppColors.error)),
                     )
                   : const SizedBox.shrink())
               : FutureBuilder<bool>(
@@ -329,7 +329,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
                     }
                     final isReviewed = snapshot.data ?? false;
                     return AppPrimaryButton(
-                      label: isReviewed ? "Ulasan Telah Diberikan" : "Berikan Ulasan",
+                      label: isReviewed ? "Review Submitted" : "Give Review",
                       icon: isReviewed ? Icons.check_circle_outline_rounded : Icons.star_border_rounded,
                       onTap: isReviewed ? null : () => _navigateToReviewPage(context, widget.historyItem),
                     );
@@ -364,7 +364,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
   }
 
   String _formatDuration(Duration duration) {
-    if (duration.isNegative) return 'Kadaluarsa';
+    if (duration.isNegative) return 'Expired';
     final hours = duration.inHours.toString().padLeft(2, '0');
     final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
     final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
@@ -379,7 +379,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Beri Ulasan', style: AppTextStyles.headingMedium),
+        title: Text('Give Review', style: AppTextStyles.headingMedium),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -408,7 +408,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
               controller: reviewController,
               maxLength: 150,
               style: AppTextStyles.bodyLarge,
-              decoration: AppDecorations.inputDecoration('Tulis pengalaman Anda...'),
+              decoration: AppDecorations.inputDecoration('Write your experience...'),
               maxLines: 3,
             ),
           ],
@@ -420,7 +420,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
               Expanded(
                 child: TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Batal', style: AppTextStyles.label),
+                  child: Text('Cancel', style: AppTextStyles.label),
                 ),
               ),
               Expanded(
@@ -437,12 +437,12 @@ class _HistoryDetailState extends State<HistoryDetail> {
                       Navigator.of(context).pop();
                     } else {
                       Fluttertoast.showToast(
-                        msg: 'Mohon berikan rating dan ulasan Anda.',
+                        msg: 'Please provide your rating and review.',
                         backgroundColor: AppColors.error,
                       );
                     }
                   },
-                  child: Text('Simpan', style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14)),
+                  child: Text('Save', style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14)),
                 ),
               ),
             ],

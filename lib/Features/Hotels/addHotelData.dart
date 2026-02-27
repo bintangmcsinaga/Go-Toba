@@ -58,33 +58,33 @@ class _AddHotelPageState extends State<AddHotelPage> {
         bool available = true;
 
         return AlertDialog(
-          title: const Text('Tambah Kamar'),
+          title: const Text('Add Room'),
           content: SingleChildScrollView(
             child: Column(
               children: [
                 TextFormField(
                   controller: typeController,
-                  decoration: const InputDecoration(labelText: 'Tipe Kamar'),
+                  decoration: const InputDecoration(labelText: 'Room Type'),
                 ),
                 TextFormField(
                   controller: pricePerNightController,
                   decoration:
-                      const InputDecoration(labelText: 'Harga per Malam'),
+                      const InputDecoration(labelText: 'Price per Night'),
                   keyboardType: TextInputType.number,
                 ),
                 TextFormField(
                   controller: facilitiesController,
                   decoration: const InputDecoration(
-                    labelText: 'Fasilitas (Pisahkan dengan koma)',
+                    labelText: 'Facilities (comma-separated)',
                   ),
                 ),
                 TextFormField(
                   controller: imageUrlController,
                   decoration:
-                      const InputDecoration(labelText: 'URL Gambar Kamar'),
+                      const InputDecoration(labelText: 'Room Image URL'),
                 ),
                 CheckboxListTile(
-                  title: const Text('Tersedia'),
+                  title: const Text('Available'),
                   value: available,
                   onChanged: (value) {
                     setState(() {
@@ -116,7 +116,7 @@ class _AddHotelPageState extends State<AddHotelPage> {
 
                 Navigator.of(context).pop();
               },
-              child: const Text('Tambah'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -154,7 +154,7 @@ class _AddHotelPageState extends State<AddHotelPage> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data hotel berhasil ditambahkan!')),
+          const SnackBar(content: Text('Hotel data added successfully!')),
         );
 
         // Reset form
@@ -166,7 +166,7 @@ class _AddHotelPageState extends State<AddHotelPage> {
         });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menambahkan data: $e')),
+          SnackBar(content: Text('Failed to add data: $e')),
         );
       }
     }
@@ -183,7 +183,7 @@ class _AddHotelPageState extends State<AddHotelPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Hotel'),
+        title: const Text('Add Hotel'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -194,10 +194,10 @@ class _AddHotelPageState extends State<AddHotelPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Nama Hotel'),
+                  decoration: const InputDecoration(labelText: 'Hotel Name'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Nama hotel tidak boleh kosong';
+                      return 'Hotel name cannot be empty';
                     }
                     return null;
                   },
@@ -205,11 +205,11 @@ class _AddHotelPageState extends State<AddHotelPage> {
                 TextFormField(
                   controller: _imageUrlController,
                   decoration: const InputDecoration(
-                      labelText: 'URL Gambar Hotel (satu gambar)'),
+                      labelText: 'Hotel Image URL (single image)'),
                 ),
                 ElevatedButton(
                   onPressed: _addImageUrl,
-                  child: const Text('Tambah Gambar'),
+                  child: const Text('Add Image'),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -227,24 +227,24 @@ class _AddHotelPageState extends State<AddHotelPage> {
                 ),
                 TextFormField(
                   controller: _priceController,
-                  decoration: const InputDecoration(labelText: 'Harga'),
+                  decoration: const InputDecoration(labelText: 'Price'),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Harga tidak boleh kosong';
+                      return 'Price cannot be empty';
                     }
                     if (int.tryParse(value) == null) {
-                      return 'Harga harus berupa angka';
+                      return 'Price must be a number';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _contactController,
-                  decoration: const InputDecoration(labelText: 'Kontak'),
+                  decoration: const InputDecoration(labelText: 'Contact'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Kontak tidak boleh kosong';
+                      return 'Contact cannot be empty';
                     }
                     return null;
                   },
@@ -255,10 +255,10 @@ class _AddHotelPageState extends State<AddHotelPage> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Rating tidak boleh kosong';
+                      return 'Rating cannot be empty';
                     }
                     if (int.tryParse(value) == null) {
-                      return 'Rating harus berupa angka';
+                      return 'Rating must be a number';
                     }
                     return null;
                   },
@@ -266,11 +266,11 @@ class _AddHotelPageState extends State<AddHotelPage> {
                 TextFormField(
                   controller: _facilitiesController,
                   decoration: const InputDecoration(
-                    labelText: 'Fasilitas (Pisahkan dengan koma)',
+                    labelText: 'Facilities (comma-separated)',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Fasilitas tidak boleh kosong';
+                      return 'Facilities cannot be empty';
                     }
                     return null;
                   },
@@ -278,18 +278,18 @@ class _AddHotelPageState extends State<AddHotelPage> {
                 TextFormField(
                   controller: _tagsController,
                   decoration: const InputDecoration(
-                    labelText: 'Tags (Pisahkan dengan koma)',
+                    labelText: 'Tags (comma-separated)',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Tags tidak boleh kosong';
+                      return 'Tags cannot be empty';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Alamat',
+                  'Address',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 ..._addressControllers.map((controller) {
@@ -297,10 +297,10 @@ class _AddHotelPageState extends State<AddHotelPage> {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: TextFormField(
                       controller: controller,
-                      decoration: const InputDecoration(labelText: 'Alamat'),
+                      decoration: const InputDecoration(labelText: 'Address'),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Alamat tidak boleh kosong';
+                          return 'Address cannot be empty';
                         }
                         return null;
                       },
@@ -310,11 +310,11 @@ class _AddHotelPageState extends State<AddHotelPage> {
                 const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: _addAddressField,
-                  child: const Text('Tambah Alamat'),
+                  child: const Text('Add Address'),
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Kamar',
+                  'Rooms',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -322,18 +322,18 @@ class _AddHotelPageState extends State<AddHotelPage> {
                   return ListTile(
                     title: Text(room.type),
                     subtitle: Text(
-                        'Harga: ${room.pricePerNight}, Tersedia: ${room.available ? 'Ya' : 'Tidak'}'),
+                        'Price: ${room.pricePerNight}, Available: ${room.available ? 'Yes' : 'No'}'),
                   );
                 }),
                 const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: _addRoom,
-                  child: const Text('Tambah Kamar'),
+                  child: const Text('Add Room'),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _addHotel,
-                  child: const Text('Tambah Hotel'),
+                  child: const Text('Add Hotel'),
                 ),
               ],
             ),

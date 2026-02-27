@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,12 +20,12 @@ class _VacationsState extends State<Vacations> {
 
   // Daftar filter agar lebih mudah dikelola dan ditambahkan
   final List<Map<String, String>> _filters = [
-    {'name': 'Semua', 'tag': 'All'},
-    {'name': 'Danau', 'tag': 'pemandangandanau'},
-    {'name': 'Air Terjun', 'tag': 'airterjun'},
-    {'name': 'Bukit', 'tag': 'bukit'},
-    {'name': 'Budaya', 'tag': 'budaya'},
-    {'name': 'Pantai', 'tag': 'pantai'},
+    {'name': 'All', 'tag': 'All'},
+    {'name': 'Lake', 'tag': 'pemandangandanau'},
+    {'name': 'Waterfall', 'tag': 'airterjun'},
+    {'name': 'Hill', 'tag': 'bukit'},
+    {'name': 'Culture', 'tag': 'budaya'},
+    {'name': 'Beach', 'tag': 'pantai'},
   ];
 
   Future<void> updateUserTags(String userId, List<String> newTags) async {
@@ -79,7 +77,7 @@ class _VacationsState extends State<Vacations> {
             iconTheme: const IconThemeData(color: Colors.white),
             elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text('Destinasi Wisata',
+              title: Text('Travel Destinations',
                   style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
               centerTitle: true,
               background: Container(
@@ -105,7 +103,7 @@ class _VacationsState extends State<Vacations> {
                     child: TextField(
                       style: AppTextStyles.bodyLarge,
                       decoration: InputDecoration(
-                        hintText: 'Cari destinasi wisata...',
+                        hintText: 'Search destinations...',
                         hintStyle: AppTextStyles.bodyMedium,
                         prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary),
                         border: InputBorder.none,
@@ -268,10 +266,10 @@ class DestinationList extends StatelessWidget {
               children: [
                 Icon(Icons.landscape_rounded, size: 80, color: AppColors.divider),
                 const SizedBox(height: 16),
-                Text('Destinasi Tidak Ditemukan', style: AppTextStyles.headingSmall),
+                Text('Destination Not Found', style: AppTextStyles.headingSmall),
                 const SizedBox(height: 8),
                 Text(
-                  'Coba gunakan kata kunci atau\nfilter kategori yang berbeda.',
+                  'Try using a different keyword\nor category filter.',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodyMedium,
                 ),

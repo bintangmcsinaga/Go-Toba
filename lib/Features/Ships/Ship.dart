@@ -85,6 +85,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
       .where((d) => _selectedOrigin == null || d != _selectedOrigin)
       .toList();
 
+
   Widget _buildDropdown({
     required String label,
     required IconData icon,
@@ -119,7 +120,10 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                 borderRadius: BorderRadius.circular(16),
                 onChanged: onChanged,
                 items: items
-                    .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+                    .map((item) => DropdownMenuItem(
+                          value: item,
+                          child: Text(item),
+                        ))
                     .toList(),
               ),
             ),
@@ -159,7 +163,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
             backgroundColor: AppColors.primaryDark,
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text('Tiket Kapal',
+              title: Text('Ship Tickets',
                   style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 16),
@@ -197,9 +201,9 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Pilih Rute Pelayaran', style: AppTextStyles.headingMedium),
+                        Text('Choose Your Sailing Route', style: AppTextStyles.headingMedium),
                         const SizedBox(height: 6),
-                        Text('Temukan jadwal kapal ferry Danau Toba terbaik untuk perjalanan Anda.',
+                        Text('Find the best Lake Toba ferry schedules for your trip.',
                             style: AppTextStyles.bodyMedium),
                         const SizedBox(height: 24),
                         
@@ -209,7 +213,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                             Column(
                               children: [
                                 _buildDropdown(
-                                  label: 'Pelabuhan Keberangkatan',
+                                  label: 'Departure Port',
                                   icon: Icons.location_on_rounded,
                                   value: _selectedOrigin,
                                   items: _origins,
@@ -223,7 +227,7 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                                 ),
                                 const SizedBox(height: 16),
                                 _buildDropdown(
-                                  label: 'Pelabuhan Tujuan',
+                                  label: 'Destination Port',
                                   icon: Icons.flag_rounded,
                                   value: _selectedDestination,
                                   items: _getAvailableDestinations(),
@@ -269,11 +273,11 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                       children: [
                         Row(
                           children: [
-                            Text('Jadwal Tersedia', style: AppTextStyles.headingSmall),
+                            Text('Available Schedules', style: AppTextStyles.headingSmall),
                             const SizedBox(width: 8),
                             if (!_isLoading)
                               AppChip(
-                                label: '${_filteredShipTickets.length} Rute', 
+                                label: '${_filteredShipTickets.length} Routes', 
                                 accent: false,
                               ),
                           ],
@@ -293,13 +297,13 @@ class _ShipTicketOrderPageState extends State<ShipTicketOrderPage> {
                                 Icon(Icons.search_off_rounded, size: 64, color: AppColors.textSecondary.withValues(alpha: 0.5)),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Oops! Rute Tidak Ditemukan', 
+                                  'Oops! Route Not Found', 
                                   style: AppTextStyles.headingSmall,
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Maaf, tidak ada jadwal kapal untuk rute dari $_selectedOrigin menuju $_selectedDestination saat ini.', 
+                                  'No ship schedules are currently available from ${(_selectedOrigin!)} to ${(_selectedDestination!)}.', 
                                   style: AppTextStyles.bodyMedium,
                                   textAlign: TextAlign.center,
                                 ),
@@ -347,6 +351,13 @@ class _ShipTicketCard extends StatelessWidget {
   final ShipTicket ticket;
   const _ShipTicketCard({required this.ticket});
 
+  String _portLabel(String portName) {
+    if (portName.startsWith('Pelabuhan ')) {
+      return '${portName.replaceFirst('Pelabuhan ', '')} Port';
+    }
+    return portName;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -379,8 +390,8 @@ class _ShipTicketCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Ferry Reguler', style: AppTextStyles.label.copyWith(color: Colors.white70)),
-                      Text('Tiket Penumpang', style: AppTextStyles.headingSmall.copyWith(color: Colors.white)),
+                      Text('Regular Ferry', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text('Passenger Ticket', style: AppTextStyles.headingSmall.copyWith(color: Colors.white)),
                     ],
                   ),
                 ),
@@ -388,7 +399,7 @@ class _ShipTicketCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('Harga', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text('Price', style: AppTextStyles.label.copyWith(color: Colors.white70)),
                       Text(
                         'Rp ${ticket.price}',
                         style: AppTextStyles.headingMedium.copyWith(color: AppColors.accentLight),
@@ -458,11 +469,11 @@ class _ShipTicketCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('DARI', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          Text('FROM', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                           const SizedBox(height: 4),
                           // Mencegah overflow dengan membatasi baris
                           Text(
-                            ticket.from, 
+                            _portLabel(ticket.from), 
                             style: AppTextStyles.headingSmall,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -484,11 +495,11 @@ class _ShipTicketCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('TUJUAN', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          Text('DESTINATION', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                           const SizedBox(height: 4),
                           // Mencegah overflow
                           Text(
-                            ticket.to, 
+                            _portLabel(ticket.to), 
                             style: AppTextStyles.headingSmall,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -506,7 +517,7 @@ class _ShipTicketCard extends StatelessWidget {
                 ),
                 
                 if (ticket.departTime.isNotEmpty) ...[
-                  Text('Jadwal Keberangkatan', style: AppTextStyles.label),
+                  Text('Departure Schedule', style: AppTextStyles.label),
                   const SizedBox(height: 10),
                   // Mencegah overflow dari text waktu yang panjang menggunakan Wrap
                   Wrap(
@@ -538,7 +549,7 @@ class _ShipTicketCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: AppPrimaryButton(
-                    label: 'Pesan Tiket',
+                    label: 'Book Ticket',
                     icon: Icons.confirmation_number_outlined,
                     onTap: () => Navigator.push(
                       context,

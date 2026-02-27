@@ -124,7 +124,7 @@ class _DestinationRecommendationPageState
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Rekomendasi Destinasi',
+                'Destination Recommendations',
                 style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
               ),
               centerTitle: true,
@@ -161,10 +161,10 @@ class _DestinationRecommendationPageState
                             children: [
                               Icon(Icons.landscape_rounded, size: 80, color: AppColors.divider),
                               const SizedBox(height: 16),
-                              Text('Belum Ada Rekomendasi', style: AppTextStyles.headingSmall),
+                              Text('No Recommendations Yet', style: AppTextStyles.headingSmall),
                               const SizedBox(height: 8),
                               Text(
-                                'Telusuri lebih banyak destinasi agar kami dapat merekomendasikan tempat yang cocok untukmu.',
+                                'Explore more destinations so we can recommend places that fit you better.',
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.bodyMedium,
                               ),

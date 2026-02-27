@@ -20,7 +20,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tidak dapat membuka tautan peta.')),
+          const SnackBar(content: Text('Unable to open the map link.')),
         );
       }
     }
@@ -204,7 +204,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                               const Icon(Icons.map_rounded, color: Colors.green, size: 24),
                               const SizedBox(width: 12),
                               Text(
-                                "Buka di Google Maps",
+                                "Open in Google Maps",
                                 style: AppTextStyles.label.copyWith(color: AppColors.textPrimary, fontSize: 14),
                               ),
                               const SizedBox(width: 8),
@@ -224,7 +224,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Tentang Lokasi Ini',
+                            'About This Place',
                             style: AppTextStyles.headingMedium,
                           ),
                           const SizedBox(height: 12),

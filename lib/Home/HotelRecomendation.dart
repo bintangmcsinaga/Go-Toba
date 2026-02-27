@@ -157,7 +157,7 @@ class _HotelRecommendationListPageState
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Rekomendasi Hotel',
+                'Hotel Recommendations',
                 style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
               ),
               centerTitle: true,
@@ -197,7 +197,7 @@ class _HotelRecommendationListPageState
                   },
                   style: AppTextStyles.bodyLarge,
                   decoration: InputDecoration(
-                    hintText: 'Cari nama hotel...',
+                    hintText: 'Search hotel name...',
                     hintStyle: AppTextStyles.bodyMedium,
                     prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary),
                     suffixIcon: searchController.text.isNotEmpty
@@ -231,9 +231,9 @@ class _HotelRecommendationListPageState
                             children: [
                               Icon(Icons.search_off_rounded, size: 80, color: AppColors.divider),
                               const SizedBox(height: 16),
-                              Text('Hotel Tidak Ditemukan', style: AppTextStyles.headingSmall),
+                              Text('Hotel Not Found', style: AppTextStyles.headingSmall),
                               const SizedBox(height: 8),
-                              Text('Coba gunakan kata kunci pencarian yang lain.',
+                              Text('Try using a different search keyword.',
                                   style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
                             ],
                           ),

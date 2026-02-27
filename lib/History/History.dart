@@ -50,7 +50,7 @@ class _HistoryPageState extends State<HistoryPage> {
               .doc(doc.id)
               .delete();
           Fluttertoast.showToast(
-            msg: 'Deadline terlewat. Pemesanan dibatalkan.',
+            msg: 'Deadline missed. Booking cancelled.',
             gravity: ToastGravity.TOP,
             backgroundColor: AppColors.error,
             textColor: Colors.white,
@@ -66,27 +66,9 @@ class _HistoryPageState extends State<HistoryPage> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
+      body: SafeArea(child: CustomScrollView(
         slivers: [
           // ── App Bar ─────────────────────────────────────────────────
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            pinned: true,
-            backgroundColor: AppColors.primaryDark,
-            expandedHeight: 80,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text('Riwayat Booking',
-                  style:
-                      AppTextStyles.headingSmall.copyWith(color: Colors.white)),
-              centerTitle: false,
-              titlePadding: const EdgeInsets.only(left: 20, bottom: 14),
-              background: Container(
-                decoration:
-                    const BoxDecoration(gradient: AppGradients.primaryVertical),
-              ),
-            ),
-          ),
-
           SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +114,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                     size: 18),
                               ),
                               const SizedBox(width: 10),
-                              Text('Menunggu Pembayaran',
+                              Text('Waiting for Payment',
                                   style: AppTextStyles.headingSmall
                                       .copyWith(color: AppColors.error)),
                             ],
@@ -161,11 +143,11 @@ class _HistoryPageState extends State<HistoryPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
                       for (final type in [
-                        ('All', 'Semua'),
+                        ('All', 'All'),
                         ('hotel', 'Hotel'),
-                        ('kuliner', 'Kuliner'),
+                        ('kuliner', 'Culinary'),
                         ('bus', 'Bus'),
-                        ('Ship', 'Kapal'),
+                        ('Ship', 'Ship'),
                       ])
                         _FilterChip(
                           label: type.$2,
@@ -245,7 +227,8 @@ class _HistoryPageState extends State<HistoryPage> {
             },
           ),
         ],
-      ),
+      ),)
+      
     );
   }
 }
@@ -259,12 +242,12 @@ class _EmptyState extends StatelessWidget {
       children: [
         Icon(Icons.receipt_long_rounded, size: 64, color: AppColors.divider),
         const SizedBox(height: 16),
-        Text('Belum ada riwayat',
-            style: AppTextStyles.headingSmall
-                .copyWith(color: AppColors.textSecondary)),
+        Text('No history yet',
+          style: AppTextStyles.headingSmall
+            .copyWith(color: AppColors.textSecondary)),
         const SizedBox(height: 4),
-        Text('Booking pertamamu akan muncul di sini',
-            style: AppTextStyles.bodyMedium),
+        Text('Your first booking will appear here',
+          style: AppTextStyles.bodyMedium),
       ],
     );
   }
@@ -350,8 +333,8 @@ class _PendingBookingTile extends StatelessWidget {
                 ],
               ),
             ),
-            Text('Bayar',
-                style: AppTextStyles.label.copyWith(color: AppColors.error)),
+            Text('Pay',
+              style: AppTextStyles.label.copyWith(color: AppColors.error)),
             const SizedBox(width: 4),
             const Icon(Icons.chevron_right_rounded,
                 color: AppColors.error, size: 16),
@@ -433,9 +416,9 @@ class HistoryCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('Rp ${historyItem.price}',
+                    Text('Rp ${historyItem.price}',
                       style: AppTextStyles.label.copyWith(
-                          color: AppColors.textPrimary, fontSize: 13)),
+                        color: AppColors.textPrimary, fontSize: 13)),
                   const SizedBox(height: 4),
                   Container(
                     padding:
@@ -447,7 +430,7 @@ class HistoryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Text(
-                      isPaid ? 'Lunas' : 'Pending',
+                      isPaid ? 'Paid' : 'Pending',
                       style: AppTextStyles.caption.copyWith(
                         color: isPaid ? AppColors.success : AppColors.error,
                         fontWeight: FontWeight.bold,

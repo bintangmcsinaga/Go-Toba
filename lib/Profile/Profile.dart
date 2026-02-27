@@ -36,7 +36,7 @@ class _ProfileState extends State<Profile>
     super.dispose();
   }
 
-  // Fungsi untuk mengeksekusi logout yang sebenarnya
+  // Function to execute actual logout
   void _executeLogout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('uid');
@@ -46,7 +46,7 @@ class _ProfileState extends State<Profile>
     await prefs.setBool("login", false);
     
     if (!mounted) return;
-    // Menggunakan pushAndRemoveUntil agar tidak bisa back ke halaman profile
+    // Using pushAndRemoveUntil so user cannot go back to profile page
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const Login()),
@@ -54,7 +54,7 @@ class _ProfileState extends State<Profile>
     );
   }
 
-  // Fungsi untuk menampilkan pop-up konfirmasi
+  // Function to show confirmation pop-up
   void _confirmLogout() {
     showDialog(
       context: context,
@@ -76,14 +76,14 @@ class _ProfileState extends State<Profile>
               ),
               const SizedBox(height: 16),
               Text(
-                'Keluar Akun',
+                'Sign Out',
                 style: AppTextStyles.headingMedium,
                 textAlign: TextAlign.center,
               ),
             ],
           ),
           content: Text(
-            'Apakah Anda yakin ingin keluar dari akun ini?',
+            'Are you sure you want to sign out from this account?',
             style: AppTextStyles.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -98,7 +98,7 @@ class _ProfileState extends State<Profile>
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      'Batal',
+                      'Cancel',
                       style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
                     ),
                   ),
@@ -119,7 +119,7 @@ class _ProfileState extends State<Profile>
                       ),
                     ),
                     child: Text(
-                      'Keluar',
+                      'Sign Out',
                       style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14),
                     ),
                   ),
@@ -198,7 +198,7 @@ class _ProfileState extends State<Profile>
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            user.username.isEmpty ? 'Pengguna' : user.username,
+                            user.username.isEmpty ? 'User' : user.username,
                             style: AppTextStyles.headingMedium.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -234,13 +234,13 @@ class _ProfileState extends State<Profile>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const _SectionLabel('Akun'),
+                  const _SectionLabel('Account'),
                   const SizedBox(height: 8),
                   _ProfileSection(tiles: [
                     _ProfileTile(
                       icon: Icons.edit_outlined,
                       color: AppColors.primary,
-                      label: 'Edit Profil',
+                      label: 'Edit Profile',
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -250,7 +250,7 @@ class _ProfileState extends State<Profile>
                     _ProfileTile(
                       icon: Icons.lock_outline_rounded,
                       color: AppColors.primaryDark,
-                      label: 'Ubah Password',
+                      label: 'Change Password',
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -260,30 +260,30 @@ class _ProfileState extends State<Profile>
                     _ProfileTile(
                       icon: Icons.language_rounded,
                       color: AppColors.info,
-                      label: 'Bahasa',
+                      label: 'Language',
                       onTap: () {},
                     ),
                   ]),
                   const SizedBox(height: 20),
-                  const _SectionLabel('Informasi'),
+                  const _SectionLabel('Information'),
                   const SizedBox(height: 8),
                   _ProfileSection(tiles: [
                     _ProfileTile(
                       icon: Icons.description_outlined,
                       color: AppColors.accent,
-                      label: 'Syarat & Ketentuan',
+                      label: 'Terms & Conditions',
                       onTap: () {},
                     ),
                     _ProfileTile(
                       icon: Icons.privacy_tip_outlined,
                       color: const Color(0xFF8E44AD),
-                      label: 'Kebijakan Privasi',
+                      label: 'Privacy Policy',
                       onTap: () {},
                     ),
                     _ProfileTile(
                       icon: Icons.support_agent_rounded,
                       color: AppColors.success,
-                      label: 'Layanan Pelanggan',
+                      label: 'Customer Service',
                       onTap: () {},
                     ),
                   ]),
@@ -307,9 +307,9 @@ class _ProfileState extends State<Profile>
                     _ProfileTile(
                       icon: Icons.logout_rounded,
                       color: AppColors.error,
-                      label: 'Keluar',
+                      label: 'Sign Out',
                       textColor: AppColors.error,
-                      onTap: _confirmLogout, // Memanggil pop-up konfirmasi
+                      onTap: _confirmLogout, // Calls confirmation pop-up
                     ),
                   ]),
                   const SizedBox(height: 24),

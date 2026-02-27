@@ -22,7 +22,7 @@ class _KulinerReviewState extends State<KulinerReview> {
         .doc(widget.kulinerId)
         .collection('reviews');
 
-    if (filter == 'Terbaru' || filter.isEmpty) {
+    if (filter == 'Latest' || filter.isEmpty) {
       query = query.orderBy('tanggal', descending: true);
     } else {
       // Filter berdasarkan rating
@@ -55,7 +55,7 @@ class _KulinerReviewState extends State<KulinerReview> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
-          'Semua Ulasan',
+          'All Reviews',
           style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
         ),
         actions: [
@@ -66,7 +66,7 @@ class _KulinerReviewState extends State<KulinerReview> {
               shape: BoxShape.circle,
             ),
             child: PopupMenuButton<String>(
-              tooltip: 'Filter Ulasan',
+              tooltip: 'Filter Reviews',
               icon: const Icon(Icons.filter_list_rounded, color: Colors.white),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -79,8 +79,8 @@ class _KulinerReviewState extends State<KulinerReview> {
               itemBuilder: (BuildContext context) {
                 return [
                   PopupMenuItem(
-                    value: 'Terbaru',
-                    child: Text('Terbaru', style: AppTextStyles.bodyMedium),
+                    value: 'Latest',
+                    child: Text('Latest', style: AppTextStyles.bodyMedium),
                   ),
                   const PopupMenuDivider(),
                   ...List.generate(5, (index) {
@@ -103,7 +103,7 @@ class _KulinerReviewState extends State<KulinerReview> {
         ],
       ),
       body: StreamBuilder<List<Review>>(
-        stream: _reviewsStream(_selectedFilter ?? 'Terbaru'),
+        stream: _reviewsStream(_selectedFilter ?? 'Latest'),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -113,7 +113,7 @@ class _KulinerReviewState extends State<KulinerReview> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Terjadi kesalahan memuat ulasan.',
+                'An error occurred while loading reviews.',
                 style: AppTextStyles.bodyMedium,
               ),
             );
@@ -127,7 +127,7 @@ class _KulinerReviewState extends State<KulinerReview> {
                       size: 64, color: AppColors.divider),
                   const SizedBox(height: 16),
                   Text(
-                    'Belum ada ulasan yang sesuai.',
+                    'No matching reviews yet.',
                     style: AppTextStyles.bodyMedium,
                   ),
                 ],
@@ -139,19 +139,19 @@ class _KulinerReviewState extends State<KulinerReview> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_selectedFilter != null && _selectedFilter != 'Terbaru')
+              if (_selectedFilter != null && _selectedFilter != 'Latest')
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                   child: Row(
                     children: [
-                      Text('Menampilkan filter: ',
+                      Text('Showing filter: ',
                           style: AppTextStyles.bodyMedium),
-                      AppChip(label: 'Bintang $_selectedFilter', accent: true),
+                      AppChip(label: '$_selectedFilter Stars', accent: true),
                       const Spacer(),
                       GestureDetector(
-                        onTap: () => setState(() => _selectedFilter = 'Terbaru'),
+                        onTap: () => setState(() => _selectedFilter = 'Latest'),
                         child: Text(
-                          'Hapus',
+                          'Clear',
                           style: AppTextStyles.label
                               .copyWith(color: AppColors.error),
                         ),

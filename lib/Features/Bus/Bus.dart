@@ -164,7 +164,7 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
             backgroundColor: AppColors.primaryDark,
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text('Tiket Bus & Travel',
+              title: Text('Bus & Travel Tickets',
                   style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 16),
@@ -202,9 +202,9 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Pilih Rute Perjalanan', style: AppTextStyles.headingMedium),
+                        Text('Choose Your Route', style: AppTextStyles.headingMedium),
                         const SizedBox(height: 6),
-                        Text('Cari jadwal bus atau travel untuk perjalanan Anda',
+                        Text('Find bus or travel schedules for your trip',
                             style: AppTextStyles.bodyMedium),
                         const SizedBox(height: 24),
 
@@ -214,7 +214,7 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                             Column(
                               children: [
                                 _buildDropdown(
-                                  label: 'Kota Keberangkatan',
+                                  label: 'Departure City',
                                   icon: Icons.departure_board_rounded,
                                   value: _selectedOrigin,
                                   items: _origins,
@@ -228,7 +228,7 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                                 ),
                                 const SizedBox(height: 16),
                                 _buildDropdown(
-                                  label: 'Kota Tujuan',
+                                  label: 'Destination City',
                                   icon: Icons.location_on_rounded,
                                   value: _selectedDestination,
                                   items: _getAvailableDestinations(),
@@ -274,7 +274,7 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                       children: [
                         Row(
                           children: [
-                            Text('Jadwal Tersedia', style: AppTextStyles.headingSmall),
+                            Text('Available Schedules', style: AppTextStyles.headingSmall),
                             const SizedBox(width: 8),
                             if (!_isLoading)
                               AppChip(
@@ -299,13 +299,13 @@ class _BusTicketOrderPageState extends State<BusTicketOrderPage> {
                                 Icon(Icons.directions_bus_filled_outlined, size: 64, color: AppColors.textSecondary.withValues(alpha: 0.5)),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Rute Tidak Ditemukan', 
+                                  'Route Not Found', 
                                   style: AppTextStyles.headingSmall,
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Maaf, belum ada jadwal bus dari $_selectedOrigin menuju $_selectedDestination.', 
+                                  'No bus schedules are available from $_selectedOrigin to $_selectedDestination yet.', 
                                   style: AppTextStyles.bodyMedium,
                                   textAlign: TextAlign.center,
                                 ),
@@ -399,7 +399,7 @@ class _BusTicketCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('Harga', style: AppTextStyles.label.copyWith(color: Colors.white70)),
+                      Text('Price', style: AppTextStyles.label.copyWith(color: Colors.white70)),
                       Text(
                         formatter.format(ticket.price).replaceAll(',00', ''), // Buang desimal jika ada
                         style: AppTextStyles.headingMedium.copyWith(color: AppColors.accentLight),
@@ -465,7 +465,7 @@ class _BusTicketCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('DARI', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          Text('FROM', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                           const SizedBox(height: 4),
                           Text(ticket.from, style: AppTextStyles.headingSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
                         ],
@@ -485,7 +485,7 @@ class _BusTicketCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('TUJUAN', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
+                          Text('DESTINATION', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                           const SizedBox(height: 4),
                           Text(ticket.to, style: AppTextStyles.headingSmall, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right),
                         ],
@@ -500,7 +500,7 @@ class _BusTicketCard extends StatelessWidget {
                 ),
 
                 if (ticket.departTime.isNotEmpty) ...[
-                  Text('Jadwal Keberangkatan', style: AppTextStyles.label),
+                  Text('Departure Schedule', style: AppTextStyles.label),
                   const SizedBox(height: 10),
                   // Menggunakan Wrap untuk mencegah overflow jika jam keberangkatan banyak
                   Wrap(
@@ -532,7 +532,7 @@ class _BusTicketCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: AppPrimaryButton(
-                    label: 'Pesan Tiket',
+                    label: 'Book Ticket',
                     icon: Icons.confirmation_number_outlined,
                     onTap: () => Navigator.push(
                       context,

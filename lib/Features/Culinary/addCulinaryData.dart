@@ -47,7 +47,7 @@ class _AddKulinerPageState extends State<AddKulinerPage> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data kuliner berhasil ditambahkan!')),
+          const SnackBar(content: Text('Culinary data added successfully!')),
         );
 
         // Reset form
@@ -55,7 +55,7 @@ class _AddKulinerPageState extends State<AddKulinerPage> {
         _formKey.currentState!.reset();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menambahkan data: $e')),
+          SnackBar(content: Text('Failed to add data: $e')),
         );
       }
     }
@@ -65,7 +65,7 @@ class _AddKulinerPageState extends State<AddKulinerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Kuliner'),
+        title: const Text('Add Culinary'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -76,34 +76,34 @@ class _AddKulinerPageState extends State<AddKulinerPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Nama Kuliner'),
+                  decoration: const InputDecoration(labelText: 'Culinary Name'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Nama kuliner tidak boleh kosong';
+                      return 'Culinary name cannot be empty';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _imageUrlController,
-                  decoration: const InputDecoration(labelText: 'URL Gambar'),
+                  decoration: const InputDecoration(labelText: 'Image URL'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'URL gambar tidak boleh kosong';
+                      return 'Image URL cannot be empty';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _priceController,
-                  decoration: const InputDecoration(labelText: 'Harga'),
+                  decoration: const InputDecoration(labelText: 'Price'),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Harga tidak boleh kosong';
+                      return 'Price cannot be empty';
                     }
                     if (int.tryParse(value) == null) {
-                      return 'Harga harus berupa angka';
+                      return 'Price must be a number';
                     }
                     return null;
                   },
@@ -114,21 +114,21 @@ class _AddKulinerPageState extends State<AddKulinerPage> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Rating tidak boleh kosong';
+                      return 'Rating cannot be empty';
                     }
                     if (int.tryParse(value) == null) {
-                      return 'Rating harus berupa angka';
+                      return 'Rating must be a number';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _deskripsiController,
-                  decoration: const InputDecoration(labelText: 'Deskripsi'),
+                  decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Deskripsi tidak boleh kosong';
+                      return 'Description cannot be empty';
                     }
                     return null;
                   },
@@ -139,7 +139,7 @@ class _AddKulinerPageState extends State<AddKulinerPage> {
                       const InputDecoration(labelText: 'URL Google Maps'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'URL Google Maps tidak boleh kosong';
+                      return 'Google Maps URL cannot be empty';
                     }
                     return null;
                   },
@@ -147,11 +147,11 @@ class _AddKulinerPageState extends State<AddKulinerPage> {
                 TextFormField(
                   controller: _tagsController,
                   decoration: const InputDecoration(
-                    labelText: 'Tags (Pisahkan dengan koma)',
+                    labelText: 'Tags (comma-separated)',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Tags tidak boleh kosong';
+                      return 'Tags cannot be empty';
                     }
                     return null;
                   },
@@ -159,7 +159,7 @@ class _AddKulinerPageState extends State<AddKulinerPage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _addKuliner,
-                  child: const Text('Tambah Kuliner'),
+                  child: const Text('Add Culinary'),
                 ),
               ],
             ),

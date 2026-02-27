@@ -143,7 +143,7 @@ class _CulinaryRecommendationPageState
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Rekomendasi Kuliner',
+                'Culinary Recommendations',
                 style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
               ),
               centerTitle: true,
@@ -180,10 +180,10 @@ class _CulinaryRecommendationPageState
                             children: [
                               Icon(Icons.restaurant_rounded, size: 80, color: AppColors.divider),
                               const SizedBox(height: 16),
-                              Text('Belum Ada Rekomendasi', style: AppTextStyles.headingSmall),
+                              Text('No Recommendations Yet', style: AppTextStyles.headingSmall),
                               const SizedBox(height: 8),
                               Text(
-                                'Telusuri lebih banyak kuliner agar kami dapat merekomendasikan hidangan yang sesuai dengan selera Anda.',
+                                'Explore more culinary spots so we can recommend dishes that match your taste.',
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.bodyMedium,
                               ),

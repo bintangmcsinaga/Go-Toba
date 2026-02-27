@@ -84,7 +84,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Profil berhasil diperbarui'),
+          content: const Text('Profile updated successfully'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
           shape:
@@ -123,9 +123,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             iconTheme: const IconThemeData(color: Colors.white),
-            title: Text('Edit Profil',
-                style:
-                    AppTextStyles.headingSmall.copyWith(color: Colors.white)),
+            title: Text('Edit Profile',
+              style:
+                AppTextStyles.headingSmall.copyWith(color: Colors.white)),
             flexibleSpace: Container(
               decoration:
                   const BoxDecoration(gradient: AppGradients.primaryVertical),
@@ -172,8 +172,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   child: const Icon(Icons.camera_alt_rounded,
                                       color: AppColors.primary, size: 20),
                                 ),
-                                title: Text('Ambil Foto',
-                                    style: AppTextStyles.bodyLarge),
+                                title: Text('Take Photo',
+                                  style: AppTextStyles.bodyLarge),
                                 onTap: () {
                                   Navigator.pop(context);
                                   _takePhoto();
@@ -191,8 +191,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   child: const Icon(Icons.image_rounded,
                                       color: AppColors.accent, size: 20),
                                 ),
-                                title: Text('Pilih dari Galeri',
-                                    style: AppTextStyles.bodyLarge),
+                                title: Text('Choose from Gallery',
+                                  style: AppTextStyles.bodyLarge),
                                 onTap: () {
                                   Navigator.pop(context);
                                   _pickImage();
@@ -251,36 +251,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                   const SizedBox(height: 8),
                   Center(
-                    child: Text('Ketuk foto untuk mengubah',
-                        style: AppTextStyles.caption),
+                    child: Text('Tap photo to change',
+                      style: AppTextStyles.caption),
                   ),
                   const SizedBox(height: 32),
 
                   // ── Fields ───────────────────────────────────
-                  Text('Informasi Akun',
+                    Text('Account Information',
                       style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.2)),
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2)),
                   const SizedBox(height: 10),
 
                   TextField(
                     controller: nameController,
-                    decoration: AppDecorations.inputDecoration('Nama Pengguna',
-                        icon: Icons.person_outline),
+                    decoration: AppDecorations.inputDecoration('Username',
+                      icon: Icons.person_outline),
                   ),
                   const SizedBox(height: 14),
                   TextField(
                     controller: phoneController,
                     keyboardType: TextInputType.phone,
-                    decoration: AppDecorations.inputDecoration('Nomor HP',
-                        icon: Icons.phone_outlined),
+                    decoration: AppDecorations.inputDecoration('Phone Number',
+                      icon: Icons.phone_outlined),
                   ),
                   const SizedBox(height: 32),
 
                   // ── Save btn ──────────────────────────────────
                   AppPrimaryButton(
-                    label: 'Simpan Perubahan',
+                    label: 'Save Changes',
                     icon: Icons.save_rounded,
                     isLoading: _isSaving,
                     onTap: _saveProfile,

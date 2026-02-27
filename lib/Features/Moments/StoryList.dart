@@ -77,9 +77,11 @@ class StoryList extends StatelessWidget {
         }
       }
 
-      await Share.shareXFiles(
-        imageFiles,
-        text: 'Check out this story by $username: $caption',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: imageFiles,
+          text: 'Check out this story by $username: $caption',
+        ),
       );
     } catch (e) {
       Fluttertoast.showToast(
@@ -110,7 +112,7 @@ class StoryList extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: AppDecorations.cardFlat,
             child: Text(
-              'Belum ada story. Jadi yang pertama share momenmu.',
+              'No stories yet. Be the first to share your moment.',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium,
             ),

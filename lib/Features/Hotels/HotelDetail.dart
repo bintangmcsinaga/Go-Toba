@@ -244,7 +244,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Fasilitas Utama',
+                            'Main Facilities',
                             style: AppTextStyles.headingMedium,
                           ),
                           const SizedBox(height: 12),
@@ -275,7 +275,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Ulasan Terbaru',
+                                'Latest Reviews',
                                 style: AppTextStyles.headingMedium,
                               ),
                               TextButton(
@@ -287,7 +287,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                               hotelId: widget.hotel.id)));
                                 },
                                 child: Text(
-                                  'Lihat Semua',
+                                  'See All',
                                   style: AppTextStyles.label.copyWith(
                                       color: AppColors.primary, 
                                       fontWeight: FontWeight.bold),
@@ -314,7 +314,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Center(
-                                    child: Text('Belum ada ulasan untuk hotel ini',
+                                    child: Text('No reviews for this hotel yet',
                                         style: AppTextStyles.bodyMedium),
                                   ),
                                 );
@@ -353,7 +353,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Pilihan Kamar',
+                            'Room Options',
                             style: AppTextStyles.headingMedium,
                           ),
                           const SizedBox(height: 16),
@@ -368,7 +368,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                   !snapshot.hasData ||
                                   snapshot.data!.isEmpty) {
                                 return Center(
-                                    child: Text('Tidak ada kamar tersedia', 
+                                    child: Text('No rooms available', 
                                     style: AppTextStyles.bodyMedium));
                               } else {
                                 return Column(
@@ -541,7 +541,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        room.available ? 'Tersedia' : 'Penuh',
+                        room.available ? 'Available' : 'Full',
                         style: AppTextStyles.label.copyWith(
                           color: room.available ? AppColors.success : AppColors.error,
                         ),
@@ -551,7 +551,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Fasilitas: ${room.facilities.join(', ')}',
+                  'Facilities: ${room.facilities.join(', ')}',
                   style: AppTextStyles.bodyMedium,
                 ),
                 const SizedBox(height: 20),
@@ -565,7 +565,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Mulai dari',
+                          'Starting from',
                           style: AppTextStyles.caption,
                         ),
                         Text(
@@ -578,7 +578,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                     // Menggunakan tombol bawaan style.dart dengan Expanded
                     Expanded(
                       child: AppPrimaryButton(
-                        label: 'Pesan',
+                        label: 'Book',
                         onTap: room.available
                             ? () {
                                 Navigator.push(

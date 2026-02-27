@@ -164,19 +164,19 @@ class _HotelScreenState extends State<HotelScreen> {
       {
         'image': 'assets/promo1.png',
         'title': 'Atsari Hotel Parapat',
-        'description': 'Diskon 20% untuk booking sekarang!',
+        'description': '20% off for bookings made now!',
         'date': '2024-08-14',
       },
       {
         'image': 'assets/promo2.png',
         'title': 'Labersa Hotel',
-        'description': 'Diskon 15% untuk member!',
+        'description': '15% discount for members!',
         'date': '2024-08-15',
       },
       {
         'image': 'assets/promo3.png',
         'title': 'Parapat View Hotel',
-        'description': 'Harga spesial untuk akhir pekan!',
+        'description': 'Special weekend rates!',
         'date': '2024-08-16',
       },
       // Tambahkan lebih banyak data promo jika diperlukan
@@ -188,7 +188,7 @@ class _HotelScreenState extends State<HotelScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         title: const Text(
-          'Hotel Danau Toba',
+          'Lake Toba Hotels',
           style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
         ),
         flexibleSpace: Container(decoration: appBarGradient()),
@@ -223,7 +223,7 @@ class _HotelScreenState extends State<HotelScreen> {
                           child: TextField(
                             controller: searchController,
                             decoration: const InputDecoration(
-                              hintText: 'Cari nama hotel...',
+                              hintText: 'Search hotel name...',
                               prefixIcon: Icon(Icons.search_rounded),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(vertical: 14),
@@ -259,7 +259,7 @@ class _HotelScreenState extends State<HotelScreen> {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(
-                                    value == 'All' ? 'Semua Lokasi' : value,
+                                    value == 'All' ? 'All Locations' : value,
                                   ),
                                 );
                               }).toList(),
@@ -389,7 +389,7 @@ class _HotelScreenState extends State<HotelScreen> {
                     hasScrollBody: false,
                     child: Center(
                       child: Text(
-                        'Hotel tidak ditemukan.',
+                        'Hotel not found.',
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,

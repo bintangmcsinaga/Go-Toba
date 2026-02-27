@@ -127,7 +127,7 @@ class _KulinerWidgetState extends State<KulinerWidget> {
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         title: Text(
-          'Kuliner Khas',
+          'Signature Culinary',
           style: AppTextStyles.headingMedium.copyWith(color: Colors.white),
         ),
       ),
@@ -140,7 +140,7 @@ class _KulinerWidgetState extends State<KulinerWidget> {
                     children: [
                       Icon(Icons.restaurant_menu_rounded, size: 80, color: AppColors.divider),
                       const SizedBox(height: 16),
-                      Text('Belum ada data kuliner', style: AppTextStyles.bodyLarge),
+                      Text('No culinary data available yet', style: AppTextStyles.bodyLarge),
                     ],
                   ),
                 )

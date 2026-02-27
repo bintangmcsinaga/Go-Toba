@@ -149,6 +149,7 @@ class _LoginState extends State<Login> {
     }
   }
 
+  // ignore: unused_element
   Future<void> _loginWithFacebook() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     FirebaseAuth firebaseAuth = FirebaseAuth.instance;

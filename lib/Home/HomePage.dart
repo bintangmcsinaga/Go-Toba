@@ -193,7 +193,7 @@ class _HomePageState extends State<HomePage>
     final double horizontalPadding = isTablet ? 24 : 16;
 
     return Scaffold(
-      backgroundColor: AppColors.background ?? Colors.grey[50],
+      backgroundColor: AppColors.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(), // Lebih smooth ala iOS
         slivers: [
@@ -262,7 +262,7 @@ class _HomePageState extends State<HomePage>
                                 color: Colors.white, size: 16),
                             SizedBox(width: 6),
                             Text(
-                              'Danau Toba',
+                              'Lake Toba',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -288,27 +288,20 @@ class _HomePageState extends State<HomePage>
                         "Welcome, ${user.username.isNotEmpty ? user.username : 'Traveler'}",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.bodyLarge?.copyWith(
+                        style: AppTextStyles.bodyLarge.copyWith(
                               color: Colors.white.withValues(alpha: 0.9),
                               fontWeight: FontWeight.w500,
                               letterSpacing: 0.5,
-                            ) ??
-                            TextStyle(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                fontSize: 16),
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "Explore Danau Toba\nToday",
-                        style: AppTextStyles.headingLarge?.copyWith(
+                        "Explore Lake Toba\nToday",
+                        style: AppTextStyles.headingLarge.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               height: 1.2,
-                            ) ??
-                            const TextStyle(
-                                color: Colors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold),
+                            ),
                       ),
                     ],
                   ),
@@ -472,7 +465,7 @@ class _HomePageState extends State<HomePage>
             height: 220,
             child: Center(
               child: Text(
-                'Gagal memuat data.',
+                'Failed to load data.',
                 style: TextStyle(color: Colors.grey[600]),
               ),
             ),
@@ -482,7 +475,7 @@ class _HomePageState extends State<HomePage>
             height: 220,
             child: Center(
               child: Text(
-                'Belum ada rekomendasi.',
+                'No recommendations yet.',
                 style: TextStyle(color: Colors.grey[400]),
               ),
             ),

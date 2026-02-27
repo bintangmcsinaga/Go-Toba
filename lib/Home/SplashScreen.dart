@@ -77,22 +77,28 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('login') ?? false;
-    if (!mounted) return;
-    if (isLoggedIn) {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final isLoggedIn = prefs.getBool('login') ?? false;
+      if (!mounted) return;
+
       final uid = prefs.getString('uid');
-      context.read<UserProvider>().setUid(uid);
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (_, __, ___) => const MainPage(),
-          transitionDuration: const Duration(milliseconds: 600),
-          transitionsBuilder: (_, anim, __, child) =>
-              FadeTransition(opacity: anim, child: child),
-        ),
-      );
-    } else {
+      final hasValidUid = uid != null && uid.trim().isNotEmpty;
+
+      if (isLoggedIn && hasValidUid) {
+        context.read<UserProvider>().setUid(uid);
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (_, __, ___) => const MainPage(),
+            transitionDuration: const Duration(milliseconds: 600),
+            transitionsBuilder: (_, anim, __, child) =>
+                FadeTransition(opacity: anim, child: child),
+          ),
+        );
+        return;
+      }
+
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
@@ -101,6 +107,12 @@ class _SplashScreenState extends State<SplashScreen>
           transitionsBuilder: (_, anim, __, child) =>
               FadeTransition(opacity: anim, child: child),
         ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Login()),
       );
     }
   }
@@ -128,8 +140,8 @@ class _SplashScreenState extends State<SplashScreen>
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xCC001F1E),
-                  Color(0x88016962),
+                  Color(0x66016962),
+                  Color(0x3302A29A),
                   Colors.transparent
                 ],
                 begin: Alignment.bottomCenter,
@@ -137,6 +149,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
           ),
+          Container(color: Colors.white10),
 
           // ── Animated wave at bottom ────────────────────────────────────
           Positioned(

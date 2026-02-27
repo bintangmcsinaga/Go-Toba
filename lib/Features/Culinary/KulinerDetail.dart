@@ -34,7 +34,7 @@ class KulinerDetail extends StatelessWidget {
     } else {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tidak dapat membuka tautan peta.')),
+          const SnackBar(content: Text('Unable to open the map link.')),
         );
       }
     }
@@ -218,7 +218,7 @@ class KulinerDetail extends StatelessWidget {
                                     const Icon(Icons.map_rounded, color: Colors.green, size: 24),
                                     const SizedBox(width: 12),
                                     Text(
-                                      "Buka di Google Maps",
+                                      "Open in Google Maps",
                                       style: AppTextStyles.label.copyWith(color: AppColors.textPrimary, fontSize: 14),
                                     ),
                                     const SizedBox(width: 8),
@@ -231,7 +231,7 @@ class KulinerDetail extends StatelessWidget {
                             const SizedBox(height: 32),
                             
                             // Deskripsi
-                            Text('Deskripsi', style: AppTextStyles.headingMedium),
+                            Text('Description', style: AppTextStyles.headingMedium),
                             const SizedBox(height: 12),
                             Text(
                               kuliner.deskripsi,
@@ -247,7 +247,7 @@ class KulinerDetail extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Ulasan Terbaru', style: AppTextStyles.headingMedium),
+                                Text('Latest Reviews', style: AppTextStyles.headingMedium),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.push(
@@ -257,7 +257,7 @@ class KulinerDetail extends StatelessWidget {
                                       ),
                                     );
                                   },
-                                  child: Text('Lihat Semua', style: AppTextStyles.label.copyWith(color: AppColors.primary)),
+                                  child: Text('See All', style: AppTextStyles.label.copyWith(color: AppColors.primary)),
                                 ),
                               ],
                             ),
@@ -276,14 +276,14 @@ class KulinerDetail extends StatelessWidget {
                             return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                           }
                           if (snapshot.hasError) {
-                            return Center(child: Text('Gagal memuat ulasan', style: AppTextStyles.bodyMedium));
+                            return Center(child: Text('Failed to load reviews', style: AppTextStyles.bodyMedium));
                           }
                           if (!snapshot.hasData || snapshot.data!.isEmpty) {
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 20),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(color: AppColors.shimmer2, borderRadius: BorderRadius.circular(12)),
-                              child: Center(child: Text('Belum ada ulasan.', style: AppTextStyles.bodyMedium)),
+                              child: Center(child: Text('No reviews yet.', style: AppTextStyles.bodyMedium)),
                             );
                           }
 
@@ -331,7 +331,7 @@ class KulinerDetail extends StatelessWidget {
           ],
         ),
         child: AppPrimaryButton(
-          label: 'Lanjutkan ke Pembayaran',
+          label: 'Continue to Payment',
           icon: Icons.shopping_bag_outlined,
           onTap: () {
             Navigator.push(
