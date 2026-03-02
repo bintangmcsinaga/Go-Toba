@@ -24,6 +24,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
   late Timer _timer;
   late Duration _timeLeft;
   bool _isDisposed = false;
+  bool _isReviewSubmitting = false;
 
   @override
   void initState() {
@@ -47,23 +48,31 @@ class _HistoryDetailState extends State<HistoryDetail> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text(context.l10n.cancelBookingTitle, style: AppTextStyles.headingMedium),
-              content: Text(context.l10n.cancelBookingConfirm, style: AppTextStyles.bodyMedium),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              title: Text(context.l10n.cancelBookingTitle,
+                  style: AppTextStyles.headingMedium),
+              content: Text(context.l10n.cancelBookingConfirm,
+                  style: AppTextStyles.bodyMedium),
               actions: [
                 TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text(context.l10n.no, style: AppTextStyles.label.copyWith(color: AppColors.textSecondary))),
+                    child: Text(context.l10n.no,
+                        style: AppTextStyles.label
+                            .copyWith(color: AppColors.textSecondary))),
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.error,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
                       _handleDeadlinePassed();
                     },
-                    child: Text(context.l10n.yesCancel, style: AppTextStyles.label.copyWith(color: Colors.white)))
+                    child: Text(context.l10n.yesCancel,
+                        style:
+                            AppTextStyles.label.copyWith(color: Colors.white)))
               ],
             ));
   }
@@ -104,58 +113,94 @@ class _HistoryDetailState extends State<HistoryDetail> {
     }
   }
 
-  void _submitReview(BuildContext context, HistoryItem historyItem,
+  Future<bool> _submitReview(BuildContext context, HistoryItem historyItem,
       String reviewText, double rating) async {
+    if (_isReviewSubmitting) return false;
+    setState(() {
+      _isReviewSubmitting = true;
+    });
+
     final user = context.read<UserProvider>();
+    final userId = user.uid;
     final itemId = historyItem.historyType == 'hotel'
         ? historyItem.hotelID
         : historyItem.historyType == 'kuliner'
             ? historyItem.kulinerID
             : historyItem.ticketID;
+    final itemCollection = historyItem.historyType == 'hotel'
+        ? 'hotels'
+        : historyItem.historyType == 'kuliner'
+            ? 'kuliner'
+            : 'bus';
 
-    Map<String, dynamic> reviewData = {
+    final Map<String, dynamic> reviewData = {
       'uid': user.uid,
       'rating': rating,
       'deskripsi': reviewText,
       'tanggal': Timestamp.fromDate(DateTime.now()),
+      'historyId': historyItem.id,
     };
 
-    DocumentReference itemDoc = FirebaseFirestore.instance
-        .collection(historyItem.historyType == 'hotel'
-            ? 'hotels'
-            : historyItem.historyType == 'kuliner'
-                ? 'kuliner'
-                : 'bus')
-        .doc(itemId);
+    final historyRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('history')
+        .doc(historyItem.id);
+    final reviewRef = FirebaseFirestore.instance
+        .collection(itemCollection)
+        .doc(itemId)
+        .collection('reviews')
+        .doc('${userId}_${historyItem.id}');
 
-    await itemDoc.collection('reviews').add(reviewData).then((_) async {
-      final userid = context.read<UserProvider>().uid;
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userid)
-          .collection('history')
-          .doc(historyItem.id)
-          .update({'reviewed': true}).then((_) {
-        if (mounted) {
-          setState(() {
-            _isReviewed = Future.value(true);
-          });
+    try {
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        final historySnap = await transaction.get(historyRef);
+        if (!historySnap.exists) {
+          throw StateError('history-not-found');
         }
-        Fluttertoast.showToast(
-          msg: context.l10n.reviewSavedSuccessfully,
-          gravity: ToastGravity.TOP,
-          backgroundColor: AppColors.success,
-          textColor: Colors.white,
-        );
-      }).catchError((error) {
-        Fluttertoast.showToast(
-          msg: context.l10n.failedToSaveReview,
-          gravity: ToastGravity.TOP,
-          backgroundColor: AppColors.error,
-          textColor: Colors.white,
-        );
+
+        final reviewedFlag = historySnap.data()?['reviewed'] == true;
+        final existingReview = await transaction.get(reviewRef);
+        if (reviewedFlag || existingReview.exists) {
+          throw StateError('already-reviewed');
+        }
+
+        transaction.set(reviewRef, reviewData);
+        transaction.update(historyRef, {
+          'reviewed': true,
+          'reviewedAt': Timestamp.fromDate(DateTime.now()),
+        });
       });
-    });
+
+      if (!mounted) return false;
+      setState(() {
+        _isReviewed = Future.value(true);
+        _isReviewSubmitting = false;
+      });
+      Fluttertoast.showToast(
+        msg: context.l10n.reviewSavedSuccessfully,
+        gravity: ToastGravity.TOP,
+        backgroundColor: AppColors.success,
+        textColor: Colors.white,
+      );
+      return true;
+    } catch (error) {
+      if (!mounted) return false;
+      setState(() {
+        _isReviewSubmitting = false;
+      });
+      final isAlreadyReviewed = error.toString().contains('already-reviewed');
+      Fluttertoast.showToast(
+        msg: isAlreadyReviewed
+            ? context.l10n.reviewSubmitted
+            : context.l10n.failedToSaveReview,
+        gravity: ToastGravity.TOP,
+        backgroundColor:
+            isAlreadyReviewed ? AppColors.warning : AppColors.error,
+        textColor: Colors.white,
+      );
+      return false;
+    }
   }
 
   @override
@@ -177,7 +222,8 @@ class _HistoryDetailState extends State<HistoryDetail> {
         flexibleSpace: Container(decoration: appBarGradient()),
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
-        title: Text(pageTitle, style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
+        title: Text(pageTitle,
+            style: AppTextStyles.headingMedium.copyWith(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -189,15 +235,23 @@ class _HistoryDetailState extends State<HistoryDetail> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isPendingPayment ? AppColors.error.withValues(alpha: 0.1) : AppColors.success.withValues(alpha: 0.1),
+                color: isPendingPayment
+                    ? AppColors.error.withValues(alpha: 0.1)
+                    : AppColors.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: isPendingPayment ? AppColors.error.withValues(alpha: 0.3) : AppColors.success.withValues(alpha: 0.3)),
+                border: Border.all(
+                    color: isPendingPayment
+                        ? AppColors.error.withValues(alpha: 0.3)
+                        : AppColors.success.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
                   Icon(
-                    isPendingPayment ? Icons.schedule_rounded : Icons.check_circle_rounded,
-                    color: isPendingPayment ? AppColors.error : AppColors.success,
+                    isPendingPayment
+                        ? Icons.schedule_rounded
+                        : Icons.check_circle_rounded,
+                    color:
+                        isPendingPayment ? AppColors.error : AppColors.success,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -205,16 +259,21 @@ class _HistoryDetailState extends State<HistoryDetail> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isPendingPayment ? context.l10n.waitingForPayment : context.l10n.transactionSuccessful,
+                          isPendingPayment
+                              ? context.l10n.waitingForPayment
+                              : context.l10n.transactionSuccessful,
                           style: AppTextStyles.headingSmall.copyWith(
-                            color: isPendingPayment ? AppColors.error : AppColors.success,
+                            color: isPendingPayment
+                                ? AppColors.error
+                                : AppColors.success,
                           ),
                         ),
                         if (isPendingPayment) ...[
                           const SizedBox(height: 2),
                           Text(
                             '${context.l10n.completeIn} ${_formatDuration(_timeLeft)}',
-                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+                            style: AppTextStyles.bodySmall
+                                .copyWith(color: AppColors.error),
                           ),
                         ]
                       ],
@@ -232,23 +291,27 @@ class _HistoryDetailState extends State<HistoryDetail> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.l10n.bookingDetails, style: AppTextStyles.headingMedium),
+                  Text(context.l10n.bookingDetails,
+                      style: AppTextStyles.headingMedium),
                   const SizedBox(height: 16),
-                  
-                  _buildDetailRow(context.l10n.transactionId, widget.historyItem.id),
-                  _buildDetailRow(context.l10n.transactionDate, widget.historyItem.date),
-                  _buildDetailRow(context.l10n.paymentMethod, widget.historyItem.paymentMethod),
+
+                  _buildDetailRow(
+                      context.l10n.transactionId, widget.historyItem.id),
+                  _buildDetailRow(
+                      context.l10n.transactionDate, widget.historyItem.date),
+                  _buildDetailRow(context.l10n.paymentMethod,
+                      widget.historyItem.paymentMethod),
                   if (showVirtualAccount) ...[
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Divider(color: AppColors.divider),
                     ),
-                    Text(context.l10n.virtualAccountNumberLabel, style: AppTextStyles.label),
+                    Text(context.l10n.virtualAccountNumberLabel,
+                        style: AppTextStyles.label),
                     const SizedBox(height: 4),
-                    Text(
-                      widget.historyItem.virtualAccountNumber, 
-                      style: AppTextStyles.headingLarge.copyWith(color: AppColors.primary, letterSpacing: 1.5)
-                    ),
+                    Text(widget.historyItem.virtualAccountNumber,
+                        style: AppTextStyles.headingLarge.copyWith(
+                            color: AppColors.primary, letterSpacing: 1.5)),
                   ],
 
                   const Padding(
@@ -258,19 +321,29 @@ class _HistoryDetailState extends State<HistoryDetail> {
 
                   // Detail Spesifik Tipe
                   if (widget.historyItem.historyType == 'hotel') ...[
-                    _buildDetailRow(context.l10n.hotelName, widget.historyItem.hotelName),
-                    _buildDetailRow(context.l10n.roomType, widget.historyItem.roomType),
+                    _buildDetailRow(
+                        context.l10n.hotelName, widget.historyItem.hotelName),
+                    _buildDetailRow(
+                        context.l10n.roomType, widget.historyItem.roomType),
                   ],
                   if (widget.historyItem.historyType == 'kuliner') ...[
-                    _buildDetailRow(context.l10n.culinaryName, widget.historyItem.kulinerName),
+                    _buildDetailRow(context.l10n.culinaryName,
+                        widget.historyItem.kulinerName),
                   ],
-                  if (widget.historyItem.historyType == 'bus' || widget.historyItem.historyType == 'Ship') ...[
-                    _buildDetailRow(context.l10n.transportation, widget.historyItem.transportName),
-                    _buildDetailRow(context.l10n.departureDate, widget.historyItem.departDate),
-                    _buildDetailRow(context.l10n.departureTime, widget.historyItem.departTime),
-                    _buildDetailRow(context.l10n.origin, widget.historyItem.origin),
-                    _buildDetailRow(context.l10n.destination, widget.historyItem.destination),
-                    _buildDetailRow(context.l10n.totalPassengers, '${widget.historyItem.totalpassanger} ${context.l10n.people}'),
+                  if (widget.historyItem.historyType == 'bus' ||
+                      widget.historyItem.historyType == 'Ship') ...[
+                    _buildDetailRow(context.l10n.transportation,
+                        widget.historyItem.transportName),
+                    _buildDetailRow(context.l10n.departureDate,
+                        widget.historyItem.departDate),
+                    _buildDetailRow(context.l10n.departureTime,
+                        widget.historyItem.departTime),
+                    _buildDetailRow(
+                        context.l10n.origin, widget.historyItem.origin),
+                    _buildDetailRow(context.l10n.destination,
+                        widget.historyItem.destination),
+                    _buildDetailRow(context.l10n.totalPassengers,
+                        '${widget.historyItem.totalpassanger} ${context.l10n.people}'),
                   ],
 
                   const Padding(
@@ -282,10 +355,12 @@ class _HistoryDetailState extends State<HistoryDetail> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(context.l10n.totalPayment, style: AppTextStyles.headingSmall),
+                      Text(context.l10n.totalPayment,
+                          style: AppTextStyles.headingSmall),
                       Text(
                         'Rp ${widget.historyItem.price}',
-                        style: AppTextStyles.headingMedium.copyWith(color: AppColors.primary),
+                        style: AppTextStyles.headingMedium
+                            .copyWith(color: AppColors.primary),
                       ),
                     ],
                   ),
@@ -295,7 +370,7 @@ class _HistoryDetailState extends State<HistoryDetail> {
           ],
         ),
       ),
-      
+
       // --- BOTTOM BAR ---
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
@@ -310,29 +385,46 @@ class _HistoryDetailState extends State<HistoryDetail> {
           ],
         ),
         child: SafeArea(
-          child: widget.historyItem.historyType == 'bus' || isPendingPayment || widget.historyItem.historyType == 'Ship'
+          child: widget.historyItem.historyType == 'bus' ||
+                  isPendingPayment ||
+                  widget.historyItem.historyType == 'Ship'
               ? (isPendingPayment
                   ? OutlinedButton(
                       onPressed: cancelConfirm,
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppColors.error),
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: Text(context.l10n.cancelBooking, style: AppTextStyles.button.copyWith(color: AppColors.error)),
+                      child: Text(context.l10n.cancelBooking,
+                          style: AppTextStyles.button
+                              .copyWith(color: AppColors.error)),
                     )
                   : const SizedBox.shrink())
               : FutureBuilder<bool>(
                   future: _isReviewed,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const SizedBox(height: 50, child: Center(child: CircularProgressIndicator(color: AppColors.primary)));
+                      return const SizedBox(
+                          height: 50,
+                          child: Center(
+                              child: CircularProgressIndicator(
+                                  color: AppColors.primary)));
                     }
                     final isReviewed = snapshot.data ?? false;
                     return AppPrimaryButton(
-                      label: isReviewed ? context.l10n.reviewSubmitted : context.l10n.giveReview,
-                      icon: isReviewed ? Icons.check_circle_outline_rounded : Icons.star_border_rounded,
-                      onTap: isReviewed ? null : () => _navigateToReviewPage(context, widget.historyItem),
+                      label: isReviewed
+                          ? context.l10n.reviewSubmitted
+                          : context.l10n.giveReview,
+                      icon: isReviewed
+                          ? Icons.check_circle_outline_rounded
+                          : Icons.star_border_rounded,
+                      isLoading: _isReviewSubmitting,
+                      onTap: (isReviewed || _isReviewSubmitting)
+                          ? null
+                          : () => _navigateToReviewPage(
+                              context, widget.historyItem),
                     );
                   },
                 ),
@@ -354,8 +446,9 @@ class _HistoryDetailState extends State<HistoryDetail> {
           Expanded(
             flex: 3,
             child: Text(
-              value, 
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+              value,
+              style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textPrimary, fontWeight: FontWeight.w500),
               textAlign: TextAlign.right,
             ),
           ),
@@ -380,13 +473,18 @@ class _HistoryDetailState extends State<HistoryDetail> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(context.l10n.giveReview, style: AppTextStyles.headingMedium),
+        title:
+            Text(context.l10n.giveReview, style: AppTextStyles.headingMedium),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              historyItem.historyType == 'hotel' ? historyItem.hotelName : historyItem.historyType == 'kuliner' ? historyItem.kulinerName : historyItem.transportName,
+              historyItem.historyType == 'hotel'
+                  ? historyItem.hotelName
+                  : historyItem.historyType == 'kuliner'
+                      ? historyItem.kulinerName
+                      : historyItem.transportName,
               style: AppTextStyles.bodyLarge,
               textAlign: TextAlign.center,
             ),
@@ -399,7 +497,8 @@ class _HistoryDetailState extends State<HistoryDetail> {
               itemCount: 5,
               itemSize: 40,
               unratedColor: const Color.fromARGB(255, 161, 161, 161),
-              itemBuilder: (context, _) => const Icon(Icons.star_rounded, color: AppColors.accent),
+              itemBuilder: (context, _) =>
+                  const Icon(Icons.star_rounded, color: AppColors.accent),
               onRatingUpdate: (ratingValue) {
                 rating = ratingValue;
               },
@@ -409,7 +508,8 @@ class _HistoryDetailState extends State<HistoryDetail> {
               controller: reviewController,
               maxLength: 150,
               style: AppTextStyles.bodyLarge,
-              decoration: AppDecorations.inputDecoration(context.l10n.writeYourExperience),
+              decoration: AppDecorations.inputDecoration(
+                  context.l10n.writeYourExperience),
               maxLines: 3,
             ),
           ],
@@ -429,21 +529,33 @@ class _HistoryDetailState extends State<HistoryDetail> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  onPressed: () {
-                    String reviewText = reviewController.text.trim();
-                    if (reviewText.isNotEmpty && rating > 0) {
-                      _submitReview(context, historyItem, reviewText, rating);
-                      Navigator.of(context).pop();
-                    } else {
-                      Fluttertoast.showToast(
-                        msg: context.l10n.provideRatingAndReview,
-                        backgroundColor: AppColors.error,
-                      );
-                    }
-                  },
-                  child: Text(context.l10n.save, style: AppTextStyles.button.copyWith(color: Colors.white, fontSize: 14)),
+                  onPressed: _isReviewSubmitting
+                      ? null
+                      : () async {
+                          String reviewText = reviewController.text.trim();
+                          if (reviewText.isNotEmpty && rating > 0) {
+                            final success = await _submitReview(
+                              context,
+                              historyItem,
+                              reviewText,
+                              rating,
+                            );
+                            if (success && context.mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          } else {
+                            Fluttertoast.showToast(
+                              msg: context.l10n.provideRatingAndReview,
+                              backgroundColor: AppColors.error,
+                            );
+                          }
+                        },
+                  child: Text(context.l10n.save,
+                      style: AppTextStyles.button
+                          .copyWith(color: Colors.white, fontSize: 14)),
                 ),
               ),
             ],

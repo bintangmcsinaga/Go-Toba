@@ -485,7 +485,7 @@ class _ShipTicketCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Expanded(
+                    const Expanded(
                       flex: 2,
                       child: Center(
                         child: Padding(
