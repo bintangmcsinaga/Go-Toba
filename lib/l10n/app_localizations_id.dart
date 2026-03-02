@@ -104,7 +104,7 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get exploreLakeTobaToday => 'Jelajahi Danau Toba\\nHari Ini';
+  String get exploreLakeTobaToday => 'Jelajahi Danau Toba Hari Ini';
 
   @override
   String get recommendedHotels => 'Rekomendasi Hotel';

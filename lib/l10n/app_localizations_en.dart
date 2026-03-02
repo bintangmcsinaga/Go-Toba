@@ -104,7 +104,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get exploreLakeTobaToday => 'Explore Lake Toba\\nToday';
+  String get exploreLakeTobaToday => 'Explore Lake Toba Today';
 
   @override
   String get recommendedHotels => 'Recommended Hotels';
