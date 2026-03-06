@@ -8,7 +8,7 @@ import 'package:go_toba/Features/Hotels/HotelModel.dart';
 import 'package:go_toba/Features/Hotels/VirtualAccountPage.dart';
 import 'package:go_toba/l10n/l10n.dart';
 import 'package:go_toba/Providers/UserProv.dart';
-import 'package:go_toba/style.dart'; // Import style.dart
+import 'package:go_toba/style.dart';
 
 class BookingPage extends StatefulWidget {
   final Room room;
